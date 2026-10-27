@@ -5,10 +5,10 @@ const IT_ZEN_GAME = {
     autoBitsPerSec: 0,
     
     upgrades: [
-        { id: "auto_click", name: "🤖 Auto Script", cost: 15, bps: 1, count: 0 },
-        { id: "fast_cpu", name: "⚡ Overclock CPU", cost: 50, bpc: 2, count: 0 },
-        { id: "cloud_node", name: "☁️ Cloud Node Server", cost: 200, bps: 10, count: 0 },
-        { id: "quantum_core", name: "🔮 Quantum Core", cost: 1000, bps: 50, count: 0 }
+        { id: "auto_click", name: "🤖 กด อัตโนมัติ", cost: 15, bps: 1, count: 0 },
+        { id: "fast_cpu", name: "⚡ โอเวอร์คล็อก ซีพียู", cost: 50, bpc: 2, count: 0 },
+        { id: "cloud_node", name: "☁️ คลาวด์ โหนด เซิร์ฟเวอร์", cost: 200, bps: 10, count: 0 },
+        { id: "quantum_core", name: "🔮 ควอนตัมคอร์", cost: 1000, bps: 50, count: 0 }
     ],
 
     init() {
