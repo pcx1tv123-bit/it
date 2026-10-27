@@ -26,15 +26,6 @@
                     fontFamily: {
                         sans: ['Sarabun', 'sans-serif'],
                         heading: ['Kanit', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
-                            500: '#0284c7',
-                            600: '#0369a1',
-                            700: '#075985',
-                        }
                     }
                 }
             }
@@ -42,42 +33,17 @@
     </script>
 
     <style>
-        body {
-            font-family: 'Sarabun', sans-serif;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        h1, h2, h3, h4, h5, h6, .font-heading {
-            font-family: 'Kanit', sans-serif;
-        }
-
-        /* Active Class Glowing Animation */
+        body { font-family: 'Sarabun', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+        h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Kanit', sans-serif; }
         @keyframes pulseBorder {
             0% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7); }
             70% { box-shadow: 0 0 0 10px rgba(14, 165, 233, 0); }
             100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
         }
-
-        .active-class-card {
-            border: 2px solid #0284c7 !important;
-            animation: pulseBorder 2s infinite;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
-        }
+        .active-class-card { border: 2px solid #0284c7 !important; animation: pulseBorder 2s infinite; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 antialiased min-h-screen flex flex-col">
@@ -85,7 +51,6 @@
     <!-- Header Navigation -->
     <header class="bg-slate-900 dark:bg-slate-950 text-white shadow-md sticky top-0 z-40 border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-            <!-- Brand Info -->
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-indigo-500/30">
                     <i class="fa-solid fa-graduation-cap"></i>
@@ -99,13 +64,10 @@
                 </div>
             </div>
 
-            <!-- Header Quick Actions & Real-time Clock & Dark Mode Toggle -->
             <div class="flex items-center gap-3">
-                <!-- Theme Toggle Button -->
-                <button onclick="toggleDarkMode()" id="themeToggleBtn" class="p-2.5 rounded-xl bg-slate-800 dark:bg-slate-800/80 hover:bg-slate-700 dark:hover:bg-slate-700 text-amber-400 dark:text-amber-300 border border-slate-700/60 shadow-inner transition active:scale-95" title="สลับ Dark / Light Mode">
+                <button onclick="toggleDarkMode()" id="themeToggleBtn" class="p-2.5 rounded-xl bg-slate-800 dark:bg-slate-800/80 hover:bg-slate-700 dark:hover:bg-slate-700 text-amber-400 dark:text-amber-300 border border-slate-700/60 shadow-inner transition active:scale-95">
                     <i id="themeToggleIcon" class="fa-solid fa-moon text-base"></i>
                 </button>
-
                 <div class="hidden md:flex flex-col items-end px-3 py-1 bg-white/10 dark:bg-slate-800/60 rounded-lg backdrop-blur-sm border border-white/10 dark:border-slate-700/50">
                     <span id="digitalClock" class="text-lg font-mono font-bold leading-none text-amber-300">00:00:00</span>
                     <span id="currentDateStr" class="text-[11px] text-slate-300 font-light mt-0.5">--</span>
@@ -134,18 +96,19 @@
                             <span id="liveWeekBadge" class="text-xs font-bold bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-full">สัปดาห์ที่ --</span>
                         </div>
                         <h2 id="currentSubjectTitle" class="text-xl sm:text-2xl font-bold font-heading mt-1">กำลังโหลดข้อมูลคาบเรียน...</h2>
-                        <p id="currentSubjectSub" class="text-sm text-sky-100 dark:text-slate-300 mt-0.5">โปรดรอสักครู่ ระบบกำลังตรวจสอบเวลาปัจจุบัน...</p>
+                        <p id="currentSubjectSub" class="text-sm text-sky-100 dark:text-slate-300 mt-0.5">โปรดรอสักครู่...</p>
                     </div>
                 </div>
 
+                <!-- Dynamic Countdown Box (สลับระหว่างเวลานับหมดคาบ vs เวลาถอยหลังข้ามวัน) -->
                 <div class="bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-md border border-white/10 dark:border-slate-700/60 px-4 py-2.5 rounded-xl flex items-center gap-4 w-full md:w-auto justify-between">
                     <div>
-                        <div class="text-[11px] text-sky-200 dark:text-slate-400">เวลาคงเหลือในคาบนี้</div>
-                        <div id="timeRemainingCountdown" class="text-xl font-mono font-bold text-amber-300">--:--</div>
+                        <div id="countdownLabel" class="text-[11px] text-sky-200 dark:text-slate-400">เวลาคงเหลือ</div>
+                        <div id="timeRemainingCountdown" class="text-xl font-mono font-bold text-amber-300">--:--:--</div>
                     </div>
                     <div class="h-8 w-px bg-white/20 dark:bg-slate-700"></div>
                     <div>
-                        <div class="text-[11px] text-sky-200 dark:text-slate-400">วิชาถัดไป</div>
+                        <div class="text-[11px] text-sky-200 dark:text-slate-400">วิชาถัดไป / วันถัดไป</div>
                         <div id="nextSubjectShort" class="text-xs font-semibold text-white max-w-[120px] truncate">--</div>
                     </div>
                 </div>
@@ -153,7 +116,7 @@
         </section>
 
         <!-- Navigation Tabs -->
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 mb-6 overflow-x-auto no-scrollbar">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 mb-6 overflow-x-auto">
             <div class="flex space-x-2 sm:space-x-4">
                 <button onclick="switchTab('today')" id="tabBtn-today" class="tab-btn px-4 py-2.5 font-heading text-sm font-semibold border-b-2 border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 flex items-center gap-2 whitespace-nowrap">
                     <i class="fa-solid fa-calendar-day"></i> ตารางเรียนวันนี้
@@ -161,721 +124,90 @@
                 <button onclick="switchTab('weekly')" id="tabBtn-weekly" class="tab-btn px-4 py-2.5 font-heading text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
                     <i class="fa-solid fa-calendar-week"></i> ตารางเรียนสัปดาห์นี้
                 </button>
+                <button onclick="switchTab('game')" id="tabBtn-game" class="tab-btn px-4 py-2.5 font-heading text-sm font-semibold border-b-2 border-transparent text-emerald-500 dark:text-emerald-400 hover:text-emerald-600 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-spa"></i> เกมไอทีผ่อนคลาย (Zen Clicker)
+                </button>
+                <button onclick="switchTab('settings')" id="tabBtn-settings" class="tab-btn px-4 py-2.5 font-heading text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-sliders"></i> ตั้งค่าระบบ
+                </button>
             </div>
 
-            <!-- Auto Notification Toggle Indicator -->
             <div class="hidden lg:flex items-center gap-2 text-xs bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                 <span id="autoNotifyStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-slate-600 dark:text-slate-300">สถานระบบ:</span>
+                <span class="text-slate-600 dark:text-slate-300">สถานะระบบ:</span>
                 <span id="autoNotifyStatusText" class="font-bold text-emerald-600 dark:text-emerald-400">เปิดอยู่</span>
             </div>
         </div>
 
-        <!-- TAB CONTENT 1: TODAY'S SCHEDULE -->
+        <!-- TAB CONTENT 1: TODAY -->
         <section id="tabContent-today" class="tab-content space-y-4">
             <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
-                <h3 id="todayViewTitle" class="text-lg font-bold font-heading text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                <h3 class="text-lg font-bold font-heading text-slate-800 dark:text-slate-100 flex items-center gap-2">
                     <i class="fa-solid fa-calendar-check text-indigo-600 dark:text-indigo-400"></i> รายการวิชาเรียนสำหรับวันนี้
                 </h3>
                 <span id="todayDateFullStr" class="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-200/60 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-300/40 dark:border-slate-700">--</span>
             </div>
-
-            <div id="todayCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Dynamically populated today cards -->
-            </div>
+            <div id="todayCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </section>
 
-        <!-- TAB CONTENT 2: WEEKLY SCHEDULE MATRIX -->
+        <!-- TAB CONTENT 2: WEEKLY -->
         <section id="tabContent-weekly" class="tab-content hidden space-y-6">
-            <!-- Day Filter Pills -->
             <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-xs font-bold text-slate-500 dark:text-slate-400 mr-1">กรองวัน:</span>
                 <button onclick="filterWeeklyDay('all')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white shadow-sm">ทั้งหมด</button>
-                <button onclick="filterWeeklyDay('mon')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700">จันทร์</button>
-                <button onclick="filterWeeklyDay('tue')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700">อังคาร</button>
-                <button onclick="filterWeeklyDay('wed')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700">พุธ</button>
-                <button onclick="filterWeeklyDay('thu')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700">พฤหัสบดี</button>
-                <button onclick="filterWeeklyDay('fri')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700">ศุกร์</button>
+                <button onclick="filterWeeklyDay('mon')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">จันทร์</button>
+                <button onclick="filterWeeklyDay('tue')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">อังคาร</button>
+                <button onclick="filterWeeklyDay('wed')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">พุธ</button>
+                <button onclick="filterWeeklyDay('thu')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">พฤหัสบดี</button>
+                <button onclick="filterWeeklyDay('fri')" class="day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">ศุกร์</button>
             </div>
-
-            <div id="weeklyScheduleGrid" class="space-y-6">
-                <!-- Dynamically Rendered Day Sections -->
-            </div>
+            <div id="weeklyScheduleGrid" class="space-y-6"></div>
         </section>
 
-        <!-- TAB CONTENT 3: SETTINGS & WEBHOOK CONFIG -->
+        <!-- TAB CONTENT 3: ZEN CLICKER GAME -->
+        <section id="tabContent-game" class="tab-content hidden space-y-6">
+            <div id="itGameContainer"></div>
+        </section>
+
+        <!-- TAB CONTENT 4: SETTINGS -->
         <section id="tabContent-settings" class="tab-content hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Webhook Configuration Box -->
                 <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-5">
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl font-bold">
-                                <i class="fa-solid fa-comment-dots"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold font-heading text-slate-800 dark:text-slate-100">ตั้งค่าการแจ้งเตือน Google Chat Webhook</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">จัดการข้อมูล Webhook URL และระบบการแจ้งเตือนอัตโนมัติ</p>
-                            </div>
-                        </div>
-                        <span class="bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-xs px-2.5 py-1 rounded-md font-semibold border border-emerald-200 dark:border-emerald-800">เปิดใช้งานอยู่</span>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Google Chat Webhook URL</label>
-                            <div class="relative">
-                                <input type="text" id="webhookUrlInput" readonly class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg p-3 pr-10 font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="">
-                                <button onclick="copyWebhookUrl()" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1" title="คัดลอก URL">
-                                    <i class="fa-regular fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Webhook Action Buttons -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <button onclick="testGoogleChatWebhook()" class="bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition active:scale-95">
-                                <i class="fa-solid fa-vial"></i> ทดสอบส่งการแจ้งเตือน (Test Message)
-                            </button>
-                            <button onclick="sendDailyScheduleToGoogleChat()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition active:scale-95">
-                                <i class="fa-solid fa-paper-plane"></i> ส่งตารางเรียนวันนี้ทันที
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Auto-Notification Settings Toggle -->
-                    <div class="border-t border-slate-100 dark:border-slate-700 pt-5 mt-4">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-800 dark:text-slate-200">แจ้งเตือนอัตโนมัติ (สรุปเช้า 07:00 น. & ก่อนเรียน 10 นาที)</h4>
-                                <p class="text-[11.5px] text-slate-500 dark:text-slate-400 mt-0.5">ระบบจะตรวจสอบเวลาเบื้องหลังและส่งข้อความเข้า Google Chat พร้อมลิงก์เข้าชมเว็บแอปให้อัตโนมัติ</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer flex-shrink-0 ml-4">
-                                <input type="checkbox" id="autoNotifyToggle" checked onchange="toggleAutoNotification()" class="sr-only peer">
-                                <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                            </label>
+                    <h3 class="text-base font-bold font-heading text-slate-800 dark:text-slate-100 border-b pb-3">ตั้งค่า Google Chat Webhook</h3>
+                    <div class="space-y-3">
+                        <input type="text" id="webhookUrlInput" readonly class="w-full bg-slate-50 dark:bg-slate-900 border text-xs rounded-lg p-3 font-mono" value="">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button onclick="testGoogleChatWebhook()" class="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 border border-indigo-200 px-4 py-2.5 rounded-xl text-xs font-bold">ทดสอบส่งข้อความ</button>
+                            <button onclick="sendDailyScheduleToGoogleChat()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold">ส่งตารางเรียนวันนี้ทันที</button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Academic Semester Week Config Box -->
-                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-5 flex flex-col justify-between">
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 pb-4">
-                            <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold">
-                                <i class="fa-solid fa-calendar-days"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold font-heading text-slate-800 dark:text-slate-100">ตั้งค่าสัปดาห์การศึกษา</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">กำหนดวันเริ่มต้นเปิดเทอมเพื่อคำนวณสัปดาห์</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">วันเปิดเทอมวันแรก (Semester Start Date)</label>
-                            <input type="date" id="semesterStartDateInput" onchange="updateSemesterStartDate(this.value)" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs rounded-lg p-2.5 font-sans focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">กำหนดเริ่มต้น: 19 ตุลาคม 2569 (2026-10-19)</p>
-                        </div>
-
-                        <!-- Dynamic Week Display Card -->
-                        <div class="bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-xl p-4 text-center">
-                            <span class="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">สัปดาห์การศึกษาปัจจุบัน</span>
-                            <div id="settingsCurrentWeekStr" class="text-3xl font-bold font-heading text-amber-900 dark:text-amber-200 mt-1">สัปดาห์ที่ --</div>
-                            <span id="settingsWeekDateRange" class="text-[11px] text-amber-700 dark:text-amber-300 font-medium block mt-1">-- ถึง --</span>
-                        </div>
-                    </div>
-
-                    <div class="text-[11px] text-slate-400 dark:text-slate-500 text-center border-t border-slate-100 dark:border-slate-700/60 pt-3">
-                        ตารางเรียนห้อง IT.4501 • พัฒนาขึ้นสำหรับนักศึกษา
+                <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/80 shadow-sm space-y-4">
+                    <h3 class="text-base font-bold font-heading text-slate-800 dark:text-slate-100 border-b pb-3">ตั้งค่าวันเปิดเทอมวันแรก</h3>
+                    <input type="date" id="semesterStartDateInput" onchange="updateSemesterStartDate(this.value)" class="w-full bg-slate-50 dark:bg-slate-900 border text-xs rounded-lg p-2.5">
+                    <div class="bg-amber-50 dark:bg-amber-950/40 p-4 rounded-xl text-center">
+                        <div id="settingsCurrentWeekStr" class="text-2xl font-bold font-heading text-amber-900 dark:text-amber-200">สัปดาห์ที่ --</div>
+                        <span id="settingsWeekDateRange" class="text-xs text-amber-700 dark:text-amber-300 font-medium block mt-1">-- ถึง --</span>
                     </div>
                 </div>
-
             </div>
         </section>
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-4 mt-8 transition-colors">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-between gap-2">
+    <footer class="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 flex justify-between">
             <div>© 2569 เจษฎากร พิทักษ์ ห้อง IT.4501</div>
-            <div class="flex items-center gap-3">
-                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> ระบบพร้องใช้งาน</span>
-                <span>•</span>
-                <span>ตารางเรียน IT.4501</span>
-            </div>
+            <div>ตารางเรียน • IT.4501</div>
         </div>
     </footer>
 
-    <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm"></div>
 
-    <!-- Application Script Logic -->
-    <script>
-        // WEBHOOK URL & CONFIGURATION
-        const GOOGLE_CHAT_WEBHOOK_URL = "";
-        
-        // IT.4501 MASTER SCHEDULE DATA
-        const MASTER_SCHEDULE = {
-            mon: {
-                dayName: "วันจันทร์",
-                bgColor: "bg-red-500 dark:bg-red-900/80",
-                borderColor: "border-red-200 dark:border-red-900/50",
-                accentBg: "bg-red-50 dark:bg-red-950/30",
-                classes: [
-                    { id: "m1", timeStart: "08:10", timeEnd: "10:40", subject: "ระบบฐานข้อมูลและการประยุกต์", room: "ท.205", color: "bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900/60 text-red-900 dark:text-red-200" },
-                    { id: "m2", timeStart: "10:40", timeEnd: "11:30", subject: "แคลคูลัส 1", room: "SK2.204", color: "bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-900/60 text-purple-900 dark:text-purple-200" },
-                    { id: "mL", timeStart: "11:30", timeEnd: "12:20", subject: "พักรับประทานอาหาร (Lunch)", room: "-", isLunch: true, color: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200" },
-                    { id: "m3", timeStart: "12:20", timeEnd: "14:50", subject: "การพัฒนาซอฟต์แวร์ด้วยเทคโนโลยี Front-End", room: "ท.205", color: "bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-900/60 text-cyan-900 dark:text-cyan-200" }
-                ]
-            },
-            tue: {
-                dayName: "วันอังคาร",
-                bgColor: "bg-pink-500 dark:bg-pink-900/80",
-                borderColor: "border-pink-200 dark:border-pink-900/50",
-                accentBg: "bg-pink-50 dark:bg-pink-950/30",
-                classes: [
-                    { id: "t1", timeStart: "08:10", timeEnd: "09:50", subject: "การพัฒนาซอฟต์แวร์ด้วยเทคโนโลยี Front-End", room: "ท.205", color: "bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200 dark:border-cyan-900/60 text-cyan-900 dark:text-cyan-200" },
-                    { id: "t2", timeStart: "09:50", timeEnd: "11:30", subject: "แคลคูลัส 1", room: "SK2.204", color: "bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-900/60 text-purple-900 dark:text-purple-200" },
-                    { id: "tL", timeStart: "11:30", timeEnd: "12:20", subject: "พักรับประทานอาหาร (Lunch)", room: "-", isLunch: true, color: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200" },
-                    { id: "t3", timeStart: "12:20", timeEnd: "14:50", subject: "การพัฒนาซอฟต์แวร์สำหรับอุปกรณ์เคลื่อนที่", room: "ท.103", color: "bg-lime-50 dark:bg-lime-950/40 border-lime-200 dark:border-lime-900/60 text-lime-900 dark:text-lime-200" }
-                ]
-            },
-            wed: {
-                dayName: "วันพุธ",
-                bgColor: "bg-emerald-500 dark:bg-emerald-900/80",
-                borderColor: "border-emerald-200 dark:border-emerald-900/50",
-                accentBg: "bg-emerald-50 dark:bg-emerald-950/30",
-                classes: [
-                    { id: "w1", timeStart: "08:10", timeEnd: "09:50", subject: "การพัฒนาซอฟต์แวร์สำหรับอุปกรณ์เคลื่อนที่", room: "ท.103", color: "bg-lime-50 dark:bg-lime-950/40 border-lime-200 dark:border-lime-900/60 text-lime-900 dark:text-lime-200" },
-                    { id: "w2", timeStart: "09:50", timeEnd: "11:30", subject: "โครงสร้างข้อมูลและอัลกอริทึม", room: "ท.204", color: "bg-orange-50 dark:bg-orange-950/40 border-orange-200 dark:border-orange-900/60 text-orange-900 dark:text-orange-200" },
-                    { id: "wL", timeStart: "11:30", timeEnd: "12:20", subject: "พักรับประทานอาหาร (Lunch)", room: "-", isLunch: true, color: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200" },
-                    { id: "w3", timeStart: "12:20", timeEnd: "14:50", subject: "การเป็นผู้ประกอบการ", room: "SK2.502", color: "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/60 text-rose-900 dark:text-rose-200" }
-                ]
-            },
-            thu: {
-                dayName: "วันพฤหัสบดี",
-                bgColor: "bg-orange-500 dark:bg-orange-900/80",
-                borderColor: "border-orange-200 dark:border-orange-900/50",
-                accentBg: "bg-orange-50 dark:bg-orange-950/30",
-                classes: [
-                    { id: "th1", timeStart: "08:10", timeEnd: "10:40", subject: "โครงสร้างข้อมูลและอัลกอริทึม", room: "ท.204", color: "bg-orange-50 dark:bg-orange-950/40 border-orange-200 dark:border-orange-900/60 text-orange-900 dark:text-orange-200" },
-                    { id: "th2", timeStart: "10:40", timeEnd: "11:30", subject: "การเขียนและการนำเสนอโครงงานภาษาอังกฤษ", room: "SK2.206", color: "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60 text-blue-900 dark:text-blue-200" },
-                    { id: "thL", timeStart: "11:30", timeEnd: "12:20", subject: "พักรับประทานอาหาร (Lunch)", room: "-", isLunch: true, color: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200" },
-                    { id: "th3", timeStart: "12:20", timeEnd: "13:10", subject: "การเขียนและการนำเสนอโครงงานภาษาอังกฤษ", room: "SK2.206", color: "bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-900/60 text-blue-900 dark:text-blue-200" },
-                    { id: "th4", timeStart: "13:10", timeEnd: "14:50", subject: "ระบบฐานข้อมูลและการประยุกต์", room: "ท.205", color: "bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900/60 text-red-900 dark:text-red-200" }
-                ]
-            },
-            fri: {
-                dayName: "วันศุกร์",
-                bgColor: "bg-amber-500 dark:bg-amber-900/80",
-                borderColor: "border-amber-200 dark:border-amber-900/50",
-                accentBg: "bg-amber-50 dark:bg-amber-950/30",
-                classes: [
-                    { id: "f1", timeStart: "08:10", timeEnd: "10:40", subject: "ระบบปฏิบัติการเครื่องแม่ข่าย", room: "ท.106", color: "bg-yellow-50 dark:bg-yellow-950/40 border-yellow-200 dark:border-yellow-900/60 text-yellow-900 dark:text-yellow-200" },
-                    { id: "fL", timeStart: "10:40", timeEnd: "11:30", subject: "พักรับประทานอาหาร (Lunch)", room: "-", isLunch: true, color: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-800 dark:text-emerald-200" },
-                    { id: "f2", timeStart: "11:30", timeEnd: "13:10", subject: "ระบบปฏิบัติการเครื่องแม่ข่าย", room: "ท.106", color: "bg-yellow-50 dark:bg-yellow-950/40 border-yellow-200 dark:border-yellow-900/60 text-yellow-900 dark:text-yellow-200" },
-                    { id: "f3", timeStart: "13:10", timeEnd: "14:50", subject: "วิชากิจกรรม", room: "กิจกรรม", color: "bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-900/60 text-indigo-900 dark:text-indigo-200" }
-                ]
-            }
-        };
-
-        // GLOBAL STATE
-        let autoNotificationEnabled = true;
-        let notifiedClassIdsForToday = new Set();
-        let morningNotifiedDateStr = "";
-        let semesterStartDate = "2026-10-19"; // Fixed 19 ต.ค. 2569
-
-        // Get Web Application Link Dynamically
-        function getWebAppUrl() {
-            return window.location.href;
-        }
-
-        // DARK MODE TOGGLE & INIT
-        function initTheme() {
-            const savedTheme = localStorage.getItem('IT4501_theme');
-            if (savedTheme === 'light') {
-                document.documentElement.classList.remove('dark');
-                updateThemeToggleIcon(false);
-            } else {
-                document.documentElement.classList.add('dark');
-                updateThemeToggleIcon(true);
-            }
-        }
-
-        function toggleDarkMode() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('IT4501_theme', isDark ? 'dark' : 'light');
-            updateThemeToggleIcon(isDark);
-            showToast(isDark ? 'สลับเป็น Dark Mode เรียบร้อย 🌙' : 'สลับเป็น Light Mode เรียบร้อย ☀️');
-        }
-
-        function updateThemeToggleIcon(isDark) {
-            const icon = document.getElementById('themeToggleIcon');
-            if (isDark) {
-                icon.className = "fa-solid fa-sun text-base text-amber-300";
-            } else {
-                icon.className = "fa-solid fa-moon text-base text-indigo-600";
-            }
-        }
-
-        // APP INITIALIZATION
-        window.addEventListener('DOMContentLoaded', () => {
-            initTheme();
-            loadSavedSettings();
-            initClockAndLoop();
-            renderTodaySchedule();
-            renderWeeklySchedule();
-            updateAcademicWeekDisplay();
-        });
-
-        // LOCAL STORAGE SETTINGS
-        function loadSavedSettings() {
-            semesterStartDate = "2026-10-19";
-            document.getElementById('semesterStartDateInput').value = semesterStartDate;
-
-            const savedToggle = localStorage.getItem('IT4501_auto_notify');
-            if (savedToggle !== null) {
-                autoNotificationEnabled = savedToggle === 'true';
-                document.getElementById('autoNotifyToggle').checked = autoNotificationEnabled;
-                updateAutoNotifyUI();
-            }
-        }
-
-        function updateSemesterStartDate(newDate) {
-            if (!newDate) return;
-            semesterStartDate = newDate;
-            updateAcademicWeekDisplay();
-            showToast('อัปเดตวันเปิดเทอมเรียบร้อยแล้ว');
-        }
-
-        function toggleAutoNotification() {
-            autoNotificationEnabled = document.getElementById('autoNotifyToggle').checked;
-            localStorage.setItem('IT4501_auto_notify', autoNotificationEnabled);
-            updateAutoNotifyUI();
-            showToast(autoNotificationEnabled ? 'เปิดการแจ้งเตือนอัตโนมัติแล้ว' : 'ปิดการแจ้งเตือนอัตโนมัติแล้ว');
-        }
-
-        function updateAutoNotifyUI() {
-            const dot = document.getElementById('autoNotifyStatusDot');
-            const text = document.getElementById('autoNotifyStatusText');
-            if (autoNotificationEnabled) {
-                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
-                text.className = "font-bold text-emerald-600 dark:text-emerald-400";
-                text.textContent = "เปิดอยู่";
-            } else {
-                dot.className = "w-2.5 h-2.5 rounded-full bg-slate-400";
-                text.className = "font-bold text-slate-400";
-                text.textContent = "ปิดอยู่";
-            }
-        }
-
-        // ACADEMIC WEEK COUNTER CALCULATOR (เริ่มต้น 19 ต.ค. 2569)
-        function calculateAcademicWeek() {
-            const start = new Date(semesterStartDate + "T00:00:00");
-            const now = new Date();
-            const current = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-            const diffTime = current.getTime() - start.getTime();
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays < 0) {
-                return { weekNum: 0, text: "ยังไม่เปิดเทอม", dateRangeStr: "รอเปิดภาคเรียน" };
-            }
-
-            const weekNum = Math.floor(diffDays / 7) + 1;
-            
-            const weekStart = new Date(start);
-            weekStart.setDate(start.getDate() + ((weekNum - 1) * 7));
-            const weekEnd = new Date(weekStart);
-            weekEnd.setDate(weekStart.getDate() + 6);
-
-            const options = { day: 'numeric', month: 'short' };
-            const dateRangeStr = `${weekStart.toLocaleDateString('th-TH', options)} - ${weekEnd.toLocaleDateString('th-TH', options)}`;
-
-            return {
-                weekNum: weekNum,
-                text: `สัปดาห์ที่ ${weekNum}`,
-                dateRangeStr: dateRangeStr
-            };
-        }
-
-        function updateAcademicWeekDisplay() {
-            const weekInfo = calculateAcademicWeek();
-            document.getElementById('headerAcademicWeek').textContent = weekInfo.text;
-            document.getElementById('liveWeekBadge').textContent = weekInfo.text;
-            document.getElementById('settingsCurrentWeekStr').textContent = weekInfo.text;
-            document.getElementById('settingsWeekDateRange').textContent = weekInfo.dateRangeStr;
-        }
-
-        // REAL-TIME CLOCK AND MONITOR LOOP
-        function initClockAndLoop() {
-            updateRealtimeStatus();
-            setInterval(updateRealtimeStatus, 1000);
-        }
-
-        function updateRealtimeStatus() {
-            const now = new Date();
-
-            // Digital Clock Update
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('digitalClock').textContent = `${hours}:${minutes}:${seconds}`;
-
-            // Date Format (Thai Year 2569)
-            const dayNamesFull = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
-            const monthNamesFull = ["ม.ค.", "ท.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ท.ค.", "ส.ค.", "ท.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-            const dateTodayKeyStr = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
-            const dateStr = `${dayNamesFull[now.getDay()]}ที่ ${now.getDate()} ${monthNamesFull[now.getMonth()]} ${now.getFullYear() + 543}`;
-            document.getElementById('currentDateStr').textContent = dateStr;
-
-            // 1. AUTO MORNING NOTIFIER (07:00 AM)
-            if (autoNotificationEnabled && hours === "07" && minutes === "00" && morningNotifiedDateStr !== dateTodayKeyStr) {
-                morningNotifiedDateStr = dateTodayKeyStr;
-                notifiedClassIdsForToday.clear(); // Reset daily class notifications
-                sendDailyScheduleToGoogleChat(true); // Auto flag
-            }
-
-            // Live Class Status Evaluator & 10-Min Pre-Class Notifier
-            evaluateLiveClassStatus(now);
-        }
-
-        function evaluateLiveClassStatus(now) {
-            const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-            const currentDayKey = dayKeys[now.getDay()];
-            const daySchedule = MASTER_SCHEDULE[currentDayKey];
-
-            const titleEl = document.getElementById('currentSubjectTitle');
-            const subEl = document.getElementById('currentSubjectSub');
-            const countdownEl = document.getElementById('timeRemainingCountdown');
-            const nextSubjectEl = document.getElementById('nextSubjectShort');
-            const iconBox = document.getElementById('statusIconBox');
-
-            // Reset active card highlights
-            document.querySelectorAll('.active-class-card').forEach(el => el.classList.remove('active-class-card'));
-
-            if (!daySchedule) {
-                titleEl.textContent = "วันนี้ไม่มีคาบเรียน (วันหยุด)";
-                subEl.textContent = "พักผ่อนให้เต็มที่! ไม่มีตารางเรียนสำหรับวันนี้";
-                countdownEl.textContent = "00:00";
-                nextSubjectEl.textContent = "ไม่มี";
-                iconBox.innerHTML = `<i class="fa-solid fa-mug-hot"></i>`;
-                return;
-            }
-
-            const nowMinutes = now.getHours() * 60 + now.getMinutes();
-
-            let currentClass = null;
-            let nextClass = null;
-
-            for (let i = 0; i < daySchedule.classes.length; i++) {
-                const item = daySchedule.classes[i];
-                const [startH, startM] = item.timeStart.split(':').map(Number);
-                const [endH, endM] = item.timeEnd.split(':').map(Number);
-                
-                const startMins = startH * 60 + startM;
-                const endMins = endH * 60 + endM;
-
-                if (nowMinutes >= startMins && nowMinutes < endMins) {
-                    currentClass = item;
-                    nextClass = daySchedule.classes[i + 1] || null;
-                    break;
-                } else if (nowMinutes < startMins && !nextClass) {
-                    nextClass = item;
-                }
-
-                // 2. AUTO-NOTIFIER CHECK (10 Minutes Before Class Start)
-                if (autoNotificationEnabled && !item.isLunch) {
-                    const diffToStart = startMins - nowMinutes;
-                    if (diffToStart === 10 && !notifiedClassIdsForToday.has(item.id)) {
-                        sendClassReminderWebhook(item, daySchedule.dayName);
-                        notifiedClassIdsForToday.add(item.id);
-                    }
-                }
-            }
-
-            if (currentClass) {
-                titleEl.textContent = currentClass.subject;
-                subEl.textContent = currentClass.isLunch ? "อยู่ในช่วงพักรับประทานอาหารกลางวัน" : `ห้องเรียน: ${currentClass.room} (${currentClass.timeStart} - ${currentClass.timeEnd} น.)`;
-                
-                // Exact HH:MM:SS Countdown Calculation
-                const [endH, endM] = currentClass.timeEnd.split(':').map(Number);
-                const targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endH, endM, 0);
-                const totalSecs = Math.max(0, Math.floor((targetTime - now) / 1000));
-
-                const hrs = Math.floor(totalSecs / 3600);
-                const mins = Math.floor((totalSecs % 3600) / 60);
-                const secs = totalSecs % 60;
-
-                if (hrs > 0) {
-                    countdownEl.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                } else {
-                    countdownEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                }
-
-                nextSubjectEl.textContent = nextClass ? nextClass.subject : "หมดคาบเรียนวันนี้";
-                iconBox.innerHTML = currentClass.isLunch ? `<i class="fa-solid fa-utensils"></i>` : `<i class="fa-solid fa-book-open"></i>`;
-
-                const cardEl = document.getElementById(`today-card-${currentClass.id}`);
-                if (cardEl) cardEl.classList.add('active-class-card');
-
-            } else {
-                const firstClass = daySchedule.classes[0];
-                const [firstH, firstM] = firstClass.timeStart.split(':').map(Number);
-                const firstMins = firstH * 60 + firstM;
-
-                if (nowMinutes < firstMins) {
-                    titleEl.textContent = "ยังไม่ถึงเวลาเริ่มเรียน";
-                    subEl.textContent = `วิชาแรกเริ่มเวลา ${firstClass.timeStart} น. (${firstClass.subject})`;
-                    nextSubjectEl.textContent = firstClass.subject;
-                    countdownEl.textContent = "--:--";
-                    iconBox.innerHTML = `<i class="fa-solid fa-hourglass-start"></i>`;
-                } else {
-                    titleEl.textContent = "เลิกเรียนแล้วสำหรับวันนี้";
-                    subEl.textContent = "ไม่มีคาบเรียนต่อแล้ว พักผ่อนตามอัธยาศัย";
-                    nextSubjectEl.textContent = "ไม่มี";
-                    countdownEl.textContent = "00:00";
-                    iconBox.innerHTML = `<i class="fa-solid fa-house"></i>`;
-                }
-            }
-        }
-
-        // RENDER TODAY SCHEDULE TAB
-        function renderTodaySchedule() {
-            const container = document.getElementById('todayCardsContainer');
-            container.innerHTML = '';
-
-            const now = new Date();
-            const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-            const todayKey = dayKeys[now.getDay()];
-            const daySchedule = MASTER_SCHEDULE[todayKey];
-
-            const dayNamesFull = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
-            document.getElementById('todayDateFullStr').textContent = `${dayNamesFull[now.getDay()]}ที่ ${now.getDate()} ${now.getFullYear() + 543}`;
-
-            if (!daySchedule) {
-                container.innerHTML = `
-                    <div class="col-span-full bg-white dark:bg-slate-800 p-8 rounded-2xl border border-slate-200 dark:border-slate-700 text-center text-slate-500 dark:text-slate-400">
-                        <i class="fa-solid fa-mug-hot text-4xl text-slate-300 dark:text-slate-600 mb-2"></i>
-                        <p class="font-bold font-heading text-lg text-slate-700 dark:text-slate-200">วันนี้ไม่มีตารางเรียน</p>
-                        <p class="text-xs">พักผ่อนให้สบาย หรือเตรียมตัวสำหรับวันถัดไป</p>
-                    </div>
-                `;
-                return;
-            }
-
-            daySchedule.classes.forEach(item => {
-                const isLunch = item.isLunch;
-                const card = document.createElement('div');
-                card.id = `today-card-${item.id}`;
-                card.className = `bg-white dark:bg-slate-800 rounded-2xl p-5 border dark:border-slate-700/80 shadow-sm flex flex-col justify-between relative transition hover:shadow-md ${item.color}`;
-
-                card.innerHTML = `
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold font-mono bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 shadow-2xs">
-                                <i class="fa-regular fa-clock text-slate-400 mr-1"></i>${item.timeStart} - ${item.timeEnd}
-                            </span>
-                            ${isLunch ? `<span class="bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">พักเที่ยง</span>` : ''}
-                        </div>
-                        ${!isLunch ? `<span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">ห้อง ${item.room}</span>` : ''}
-                    </div>
-
-                    <div class="my-3">
-                        <h4 class="text-base font-bold font-heading text-slate-800 dark:text-slate-100 leading-snug">${item.subject}</h4>
-                    </div>
-
-                    <div class="flex items-center justify-between text-xs border-t border-slate-100 dark:border-slate-700/60 pt-3 mt-1">
-                        <span class="text-slate-500 dark:text-slate-400">ห้อง IT.4501</span>
-                        <button onclick="sendSingleSubjectWebhook('${item.subject}', '${item.timeStart} - ${item.timeEnd}', '${item.room}', '${daySchedule.dayName}')" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold flex items-center gap-1 text-[11.5px]">
-                            <i class="fa-solid fa-share-nodes"></i> แจ้งเข้า Chat
-                        </button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // RENDER WEEKLY SCHEDULE MATRIX TAB
-        function renderWeeklySchedule() {
-            const container = document.getElementById('weeklyScheduleGrid');
-            container.innerHTML = '';
-
-            Object.keys(MASTER_SCHEDULE).forEach(dayKey => {
-                const day = MASTER_SCHEDULE[dayKey];
-                
-                const dayBlock = document.createElement('div');
-                dayBlock.className = `weekly-day-block day-section-${dayKey} bg-white dark:bg-slate-800 rounded-2xl border ${day.borderColor} shadow-sm overflow-hidden`;
-
-                let classesHtml = '';
-                day.classes.forEach(c => {
-                    classesHtml += `
-                        <div class="p-3.5 rounded-xl border ${c.color} flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div class="flex items-start sm:items-center gap-3">
-                                <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 flex-shrink-0">
-                                    ${c.timeStart} - ${c.timeEnd}
-                                </span>
-                                <div>
-                                    <div class="text-sm font-bold font-heading text-slate-800 dark:text-slate-100">${c.subject}</div>
-                                    <div class="text-[11px] text-slate-500 dark:text-slate-400">${c.isLunch ? 'ช่วงพักรับประทานอาหาร' : 'วิชาเรียนปกติ'}</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 self-end sm:self-auto">
-                                ${!c.isLunch ? `<span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">ห้อง ${c.room}</span>` : `<span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">พักเที่ยง</span>`}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                dayBlock.innerHTML = `
-                    <div class="${day.bgColor} px-5 py-3 text-white flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-calendar-day"></i>
-                            <h4 class="font-bold font-heading text-base">${day.dayName}</h4>
-                        </div>
-                        <span class="text-xs bg-white/20 dark:bg-slate-950/40 px-2.5 py-0.5 rounded-full">${day.classes.filter(x => !x.isLunch).length} วิชา</span>
-                    </div>
-                    <div class="p-4 space-y-2.5">
-                        ${classesHtml}
-                    </div>
-                `;
-
-                container.appendChild(dayBlock);
-            });
-        }
-
-        // FILTER WEEKLY VIEW BY DAY
-        function filterWeeklyDay(dayKey) {
-            document.querySelectorAll('.day-filter-btn').forEach(btn => {
-                btn.className = "day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700";
-            });
-            event.target.className = "day-filter-btn px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white shadow-sm";
-
-            const blocks = document.querySelectorAll('.weekly-day-block');
-            blocks.forEach(block => {
-                if (dayKey === 'all' || block.classList.contains(`day-section-${dayKey}`)) {
-                    block.style.display = 'block';
-                } else {
-                    block.style.display = 'none';
-                }
-            });
-        }
-
-        // TAB SWITCHING LOGIC
-        function switchTab(tabKey) {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = "tab-btn px-4 py-2.5 font-heading text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-2 whitespace-nowrap";
-            });
-            document.getElementById(`tabBtn-${tabKey}`).className = "tab-btn px-4 py-2.5 font-heading text-sm font-semibold border-b-2 border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 flex items-center gap-2 whitespace-nowrap";
-
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-            document.getElementById(`tabContent-${tabKey}`).classList.remove('hidden');
-        }
-
-        // GOOGLE CHAT WEBHOOK INTEGRATION
-        async function sendWebhookPayload(payload) {
-    try {
-        // ใช้ mode: 'no-cors' เมื่อรันจาก file:// เพื่อข้ามการตรวจ CORS ของเบราว์เซอร์
-        const response = await fetch(GOOGLE_CHAT_WEBHOOK_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-            body: JSON.stringify(payload)
-        });
-        showToast('ส่งออกไม่ได้ ผู้พัฒนาได้เอาออกแล้ว! 🚀');
-    } catch (err) {
-        console.error(err);
-        showToast('ไม่สามารถเชื่อมต่อกับ Google Chat Webhook ได้');
-    }
-}
-
-        // 1. Test Webhook Message
-        function testGoogleChatWebhook() {
-            const weekInfo = calculateAcademicWeek();
-            const webAppUrl = getWebAppUrl();
-            const payload = {
-                text: `🔔 *[ทดสอบระบบแจ้งเตือนตารางเรียน IT.4501]*\n\n✅ การเชื่อมต่อ Webhook สมบูรณ์ดี!\n📅 *สถานะปัจจุบัน:* ${weekInfo.text}\n⏰ *เวลาทดสอบ:* ${new Date().toLocaleTimeString('th-TH')} น.\n\n🔗 *เข้าชมตารางเรียนออนไลน์:* ${webAppUrl}`
-            };
-            sendWebhookPayload(payload);
-        }
-
-        // 2. Send Daily Schedule
-        function sendDailyScheduleToGoogleChat(isAuto = false) {
-            const now = new Date();
-            const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-            const todayKey = dayKeys[now.getDay()];
-            const daySchedule = MASTER_SCHEDULE[todayKey];
-            const weekInfo = calculateAcademicWeek();
-            const webAppUrl = getWebAppUrl();
-            const tagText = isAuto ? "🌅 *[สรุปตารางเรียนประจำวันอัตโนมัติ - 07:00 น.]*" : "📅 *[ตารางเรียนประจำวัน ห้อง IT.4501]*";
-
-            if (!daySchedule) {
-                sendWebhookPayload({
-                    text: `${tagText}\n\n📌 *${weekInfo.text}*\n🎉 *วันนี้ไม่มีคาบเรียน (วันหยุด)* พักผ่อนให้เต็มที่ครับ!\n\n🔗 *เข้าชมตารางเรียนออนไลน์:* ${webAppUrl}`
-                });
-                return;
-            }
-
-            let classTextList = daySchedule.classes.map(c => {
-                if (c.isLunch) return `🍱 *${c.timeStart} - ${c.timeEnd} น.* : พักรับประทานอาหาร (Lunch)`;
-                return `📚 *${c.timeStart} - ${c.timeEnd} น.* : ${c.subject}\n    📍 *ห้องเรียน:* ${c.room}`;
-            }).join('\n\n');
-
-            const payload = {
-                text: `${tagText}\n🎓 *${weekInfo.text} (${daySchedule.dayName})*\n────────────────────\n\n${classTextList}\n\n────────────────────\n🔗 *เข้าชมตารางเรียนออนไลน์:* ${webAppUrl}\nตั้งใจเรียนนะครับทุกคน! 💪`
-            };
-
-            sendWebhookPayload(payload);
-        }
-
-        // 3. Auto 10-Minute Pre-Class Reminder
-        function sendClassReminderWebhook(item, dayName) {
-            const weekInfo = calculateAcademicWeek();
-            const webAppUrl = getWebAppUrl();
-            const payload = {
-                text: `⏰ *[แจ้งเตือนก่อนเริ่มคาบ 10 นาที!]*\n\n📚 *วิชา:* ${item.subject}\n📍 *ห้องเรียน:* ${item.room}\n🕒 *เวลาเรียน:* ${item.timeStart} - ${item.timeEnd} น.\n📅 *ประจำ:* ${dayName} (${weekInfo.text})\n\n🔗 *เข้าชมตารางเรียนออนไลน์:* ${webAppUrl}\n\nเตรียมตัวเข้าห้องเรียนได้เลยครับนักศึกษา IT.4501! 🎒`
-            };
-            sendWebhookPayload(payload);
-        }
-
-        // 4. Send Single Subject Info
-        function sendSingleSubjectWebhook(subject, timeStr, room, dayName) {
-            const webAppUrl = getWebAppUrl();
-            const payload = {
-                text: `📌 *[ข้อมูลวิชาเรียน - IT.4501]*\n\n📚 *วิชา:* ${subject}\n🕒 *เวลา:* ${timeStr} น.\n📍 *ห้องเรียน:* ${room}\n📅 *วัน:* ${dayName}\n\n🔗 *เข้าชมตารางเรียนออนไลน์:* ${webAppUrl}`
-            };
-            sendWebhookPayload(payload);
-        }
-
-        // Copy Webhook URL to Clipboard
-        function copyWebhookUrl() {
-            const copyText = document.getElementById("webhookUrlInput");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            document.execCommand("copy");
-            showToast('คัดลอก Webhook URL เรียบร้อยแล้ว');
-        }
-
-        // Toast Notification Helper
-        function showToast(message) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = 'bg-slate-900 dark:bg-slate-800 text-white border border-slate-700 dark:border-slate-600 px-4 py-3 rounded-xl text-xs font-semibold shadow-xl flex items-center gap-2.5 transform transition-all duration-300 translate-y-2 opacity-0';
-            toast.innerHTML = `<i class="fa-solid fa-circle-info text-sky-400"></i><span>${message}</span>`;
-            
-            container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            }, 10);
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-    </script>
+    <!-- Modular Script Imports -->
+    <script src="schedule-data.js"></script>
+    <script src="app.js"></script>
+    <script src="it-craft-game.js"></script>
 </body>
 </html>
