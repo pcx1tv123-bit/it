@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบแจ้งตารางเรียนออนไลน์ ห้อง IT.4501</title>
+    <title>ตารางเรียน IT.4501</title>
     
-    <link rel="icon" href="https://i.pinimg.com/originals/ec/c3/fa/ecc3fad4fbe9d33d0c1b1b76102396b5.gif" type="image/png">
+    <link rel="icon" href="https://i.pinimg.com/1200x/cb/16/7a/cb167ae82a34505fa8e2e77e43851e51.jpg" type="image/png">
 
     <!-- Google Fonts: Sarabun & Kanit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -94,7 +94,7 @@
                     <h1 class="text-lg sm:text-xl font-bold font-heading leading-none tracking-tight text-white">ตารางเรียนนักศึกษา ห้อง IT.4501</h1>
                     <p class="text-xs text-indigo-200 mt-1 flex items-center gap-1.5">
                         <span id="headerAcademicWeek" class="bg-indigo-800/80 px-2 py-0.5 rounded text-[11px] font-medium text-indigo-100 border border-indigo-700/50">กำลังคำนวณสัปดาห์...</span>
-                        <span>• ระบบแจ้งเตือนตารางเรียนอัตโนมัติ</span>
+                        <span>• ระบบตารางเรียน</span>
                     </p>
                 </div>
             </div>
@@ -110,11 +110,6 @@
                     <span id="digitalClock" class="text-lg font-mono font-bold leading-none text-amber-300">00:00:00</span>
                     <span id="currentDateStr" class="text-[11px] text-slate-300 font-light mt-0.5">--</span>
                 </div>
-
-                <button onclick="sendDailyScheduleToGoogleChat()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-sm transition active:scale-95">
-                    <i class="fa-solid fa-paper-plane"></i>
-                    <span class="hidden sm:inline">ส่งตารางวันนี้เข้า Google Chat</span>
-                </button>
             </div>
         </div>
     </header>
@@ -171,7 +166,7 @@
             <!-- Auto Notification Toggle Indicator -->
             <div class="hidden lg:flex items-center gap-2 text-xs bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                 <span id="autoNotifyStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-slate-600 dark:text-slate-300">แจ้งเตือนอัตโนมัติ (07:00 น. & ก่อนเรียน 10 นาที):</span>
+                <span class="text-slate-600 dark:text-slate-300">สถานระบบ:</span>
                 <span id="autoNotifyStatusText" class="font-bold text-emerald-600 dark:text-emerald-400">เปิดอยู่</span>
             </div>
         </div>
@@ -231,7 +226,7 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Google Chat Webhook URL</label>
                             <div class="relative">
-                                <input type="text" id="webhookUrlInput" readonly class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg p-3 pr-10 font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="https://chat.googleapis.com/v1/spaces/AAQAAZJlehM/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=N2-wCp3Ro9xalZg8OZugbwmvIXqjnJVMLPP3TUQRNLo">
+                                <input type="text" id="webhookUrlInput" readonly class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded-lg p-3 pr-10 font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none" value="">
                                 <button onclick="copyWebhookUrl()" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1" title="คัดลอก URL">
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
@@ -319,7 +314,7 @@
     <!-- Application Script Logic -->
     <script>
         // WEBHOOK URL & CONFIGURATION
-        const GOOGLE_CHAT_WEBHOOK_URL = "https://chat.googleapis.com/v1/spaces/AAQAAZJlehM/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=N2-wCp3Ro9xalZg8OZugbwmvIXqjnJVMLPP3TUQRNLo";
+        const GOOGLE_CHAT_WEBHOOK_URL = "";
         
         // IT.4501 MASTER SCHEDULE DATA
         const MASTER_SCHEDULE = {
