@@ -299,11 +299,11 @@
     <!-- Footer -->
     <footer class="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-4 mt-8 transition-colors">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center justify-between gap-2">
-            <div>© 2569 ระบบแจ้งตารางเรียนออนไลน์ ห้อง IT.4501</div>
+            <div>© 2569 เจษฎากร พิทักษ์ ห้อง IT.4501</div>
             <div class="flex items-center gap-3">
-                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Google Chat Connected</span>
+                <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> ระบบพร้องใช้งาน</span>
                 <span>•</span>
-                <span>Webhook Active</span>
+                <span>ตารางเรียน IT.4501</span>
             </div>
         </div>
     </footer>
@@ -784,7 +784,7 @@
             headers: { 'Content-Type': 'application/json; charset=UTF-8' },
             body: JSON.stringify(payload)
         });
-        showToast('ส่งข้อความเข้า Google Chat เรียบร้อยแล้ว! 🚀');
+        showToast('ส่งออกไม่ได้ ผู้พัฒนาได้เอาออกแล้ว! 🚀');
     } catch (err) {
         console.error(err);
         showToast('ไม่สามารถเชื่อมต่อกับ Google Chat Webhook ได้');
