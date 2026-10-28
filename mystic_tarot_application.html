@@ -169,7 +169,6 @@
     <i class="fa-solid fa-wand-magic-sparkles text-emerald-200 animate-pulse"></i>
     <span>กลับ</span>
 </a>
-        </a>
       </div>
 
     </div>
@@ -588,6 +587,20 @@
     let currentDrawnCards = [];
     let cardsFlippedState = [false, false, false];
 
+    /* สร้างภาพไพ่: ใช้ภาพ Rider–Waite เมื่อออนไลน์ และมีภาพสำรองในตัวเว็บ */
+    function tarotImageMarkup(card, className = 'gallery-art') {
+      const safeName = String(card.name || 'Tarot Card').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+      const safeTitle = String(card.titleTh || '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[ch]));
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="600" viewBox="0 0 400 600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#393024"/><stop offset="1" stop-color="#100e0b"/></linearGradient></defs><rect width="400" height="600" rx="20" fill="url(#g)"/><rect x="18" y="18" width="364" height="564" rx="14" fill="none" stroke="#d8bd87" stroke-width="3"/><circle cx="200" cy="190" r="78" fill="none" stroke="#d8bd87" stroke-width="2"/><path d="M200 105 L220 170 L285 190 L220 210 L200 275 L180 210 L115 190 L180 170 Z" fill="#d8bd87" opacity=".85"/><text x="200" y="350" text-anchor="middle" fill="#f4e6c5" font-family="serif" font-size="25">${safeName}</text><text x="200" y="390" text-anchor="middle" fill="#d8bd87" font-family="sans-serif" font-size="19">${safeTitle}</text><text x="200" y="535" text-anchor="middle" fill="#d8bd87" font-family="serif" font-size="17" letter-spacing="5">MYSTIC TAROT</text></svg>`;
+      const fallback = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+      const imageUrl = `https://www.sacred-texts.com/tarot/pkt/img/ar${String(card.id).padStart(2, '0')}.jpg`;
+      return `<img class="${className}" src="${imageUrl}" alt="${safeName}" loading="lazy" onerror="this.onerror=null;this.src='${fallback}'">`;
+    }
+
     /* ==========================================
        3. INITIALIZATION & STAR CANVAS ANIMATION
        ========================================== */
@@ -688,33 +701,43 @@
     async function drawTarotCards() {
       const button = document.getElementById('draw-cards-btn');
       const deck = document.querySelector('.deck-stage');
+      if (!button || !deck) return;
       button.disabled = true;
       button.innerHTML = '<i class="fa-solid fa-shuffle mr-2"></i><span>กำลังสับไพ่...</span>';
       deck.classList.add('shuffling');
-      await new Promise(resolve => setTimeout(resolve, 1150));
-      cardsFlippedState = [false, false, false];
-      const shuffled = [...TAROT_CARDS];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      try {
+        await new Promise(resolve => setTimeout(resolve, 900));
+        cardsFlippedState = [false, false, false];
+        const shuffled = [...TAROT_CARDS];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        currentDrawnCards = shuffled.slice(0, 3).map(card => ({ ...card, reversed: Math.random() < 0.25 }));
+        for (let i = 0; i < 3; i++) {
+          const card = currentDrawnCards[i];
+          const front = document.getElementById(`card-front-${i}`);
+          const container = document.getElementById(`card-inner-${i}`)?.parentElement;
+          if (!front || !container) continue;
+          front.innerHTML = `
+            <div class="text-[10px] font-cinzel text-mystic-gold font-bold tracking-widest uppercase">ARCANA ${card.roman}</div>
+            <div class="card-art-frame w-full flex-1 min-h-0 overflow-hidden">${tarotImageMarkup(card, `tarot-art ${card.reversed ? 'rotate-180' : ''}`)}</div>
+            <div class="pt-2"><div class="text-sm font-bold text-amber-100 font-cinzel leading-tight">${card.name}</div>
+            <div class="text-[11px] text-purple-200 mt-1">${card.titleTh}</div>
+            <div class="text-[9px] mt-1 ${card.reversed ? 'text-rose-300' : 'text-emerald-300'}">${card.reversed ? 'REVERSED · ไพ่กลับหัว' : 'UPRIGHT · ไพ่ตั้งตรง'}</div></div>`;
+          container.classList.remove('flipped');
+        }
+        document.getElementById('cards-display-area')?.classList.remove('hidden');
+        renderSummaryAndBreakdown();
+        document.getElementById('cards-display-area')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (error) {
+        console.error('เกิดข้อผิดพลาดขณะเปิดไพ่:', error);
+        alert('เปิดไพ่ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง หากยังมีปัญหาให้เปิด Console เพื่อตรวจสอบข้อผิดพลาด');
+      } finally {
+        deck.classList.remove('shuffling');
+        button.disabled = false;
+        button.innerHTML = '<i class="fa-solid fa-rotate mr-2"></i><span>สับไพ่ชุดใหม่</span>';
       }
-      currentDrawnCards = shuffled.slice(0, 3).map(card => ({...card, reversed: Math.random() < 0.25}));
-      for (let i = 0; i < 3; i++) {
-        const card = currentDrawnCards[i];
-        document.getElementById(`card-front-${i}`).innerHTML = `
-          <div class="text-[10px] font-cinzel text-mystic-gold font-bold tracking-widest uppercase">ARCANA ${card.roman}</div>
-          <div class="card-art-frame w-full flex-1 min-h-0 overflow-hidden">${tarotImageMarkup(card, `tarot-art ${card.reversed ? 'rotate-180' : ''}`)}</div>
-          <div class="pt-2"><div class="text-sm font-bold text-amber-100 font-cinzel leading-tight">${card.name}</div>
-          <div class="text-[11px] text-purple-200 mt-1">${card.titleTh}</div>
-          <div class="text-[9px] mt-1 ${card.reversed ? 'text-rose-300' : 'text-emerald-300'}">${card.reversed ? 'REVERSED · ไพ่กลับหัว' : 'UPRIGHT · ไพ่ตั้งตรง'}</div></div>`;
-        document.getElementById(`card-inner-${i}`).parentElement.classList.remove('flipped');
-      }
-      document.getElementById('cards-display-area').classList.remove('hidden');
-      renderSummaryAndBreakdown();
-      deck.classList.remove('shuffling');
-      button.disabled = false;
-      button.innerHTML = '<i class="fa-solid fa-rotate mr-2"></i><span>สับไพ่ชุดใหม่</span>';
-      document.getElementById('cards-display-area').scrollIntoView({behavior:'smooth',block:'start'});
     }
 
     function flipCard(index) {
