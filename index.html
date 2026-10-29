@@ -131,9 +131,6 @@
                 <button onclick="switchTab('weekly')" id="tabBtn-weekly" class="tab-btn px-4 py-2.5 font-heading text-sm font-semibold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 flex items-center gap-2 whitespace-nowrap">
                     <i class="fa-solid fa-calendar-week"></i> ตารางเรียนสัปดาห์นี้
                 </button>
-                <button onclick="switchTab('game')" id="tabBtn-game" class="tab-btn px-4 py-2.5 font-heading text-sm font-semibold border-b-2 border-transparent text-emerald-500 dark:text-emerald-400 hover:text-emerald-600 flex items-center gap-2 whitespace-nowrap">
-                    <i class="fa-solid fa-spa"></i> เกมไอทีผ่อนคลาย (Zen Clicker)
-                </button>
                 <a href="mystic_tarot_application.html" id="tabBtn-game" class="tab-btn px-4 py-2.5 font-heading text-sm font-semibold border-b-2 border-transparent text-emerald-500 dark:text-emerald-400 hover:text-emerald-600 flex items-center gap-2 whitespace-nowrap decoration-none">
     <i class="fa-solid fa-spa"></i> ดูดวงไพ่ทาโรต์
 </a>
@@ -214,7 +211,21 @@
 
     <!-- Modular Script Imports -->
     <script src="schedule-data.js"></script>
-    <script src="app.js"></script>
+    
+    <div id="classDetailModal" class="hidden fixed inset-0 z-[100] items-center justify-center bg-slate-950/75 backdrop-blur-sm p-4" onclick="if(event.target===this)closeClassDetails()">
+      <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-700 shadow-2xl">
+        <div class="bg-gradient-to-r from-indigo-700 to-violet-700 text-white p-6 flex items-start justify-between gap-4">
+          <div><p class="text-xs uppercase tracking-widest text-indigo-200">รายละเอียดวิชา</p><h2 id="classDetailSubject" class="text-2xl sm:text-3xl font-bold font-heading mt-1">รายละเอียดวิชา</h2><p id="classDetailStatus" class="text-sm mt-2 text-indigo-100"></p></div>
+          <button onclick="closeClassDetails()" class="w-10 h-10 rounded-xl bg-white/15 hover:bg-white/25 text-white" aria-label="ปิด"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-6 grid sm:grid-cols-[180px_1fr] gap-6">
+          <div><img id="classDetailImage" class="hidden w-full aspect-[3/4] object-cover rounded-2xl border border-slate-200 dark:border-slate-700" alt="ภาพประกอบรายวิชา"><div class="text-6xl text-indigo-300 text-center py-8"><i class="fa-solid fa-book-open-reader"></i></div></div>
+          <div class="space-y-4"><div class="grid grid-cols-2 gap-3"><div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800"><p class="text-xs text-slate-500">วันเรียน</p><p id="classDetailDay" class="font-bold mt-1"></p></div><div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800"><p class="text-xs text-slate-500">เวลา</p><p id="classDetailTime" class="font-bold mt-1"></p></div><div class="p-4 rounded-xl bg-slate-100 dark:bg-slate-800 col-span-2"><p class="text-xs text-slate-500">ห้องเรียน</p><p id="classDetailRoom" class="font-bold mt-1"></p></div></div><div class="p-4 rounded-xl border border-indigo-100 dark:border-indigo-900"><p class="text-xs text-slate-500">อาจารย์ผู้สอน</p><p id="classDetailTeacher" class="font-semibold mt-1"></p></div><div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700"><p class="text-xs text-slate-500">รายละเอียดวิชา</p><p id="classDetailDescription" class="mt-1 leading-relaxed"></p></div></div>
+        </div>
+      </div>
+    </div>
+
+<script src="app.js"></script>
     <script src="it-craft-game.js"></script>
 </body>
 </html>

@@ -24,6 +24,8 @@ const IT_ZEN_GAME = {
             this.dataBits = parsed.dataBits || 0;
             this.bitsPerClick = parsed.bitsPerClick || 1;
             this.autoBitsPerSec = parsed.autoBitsPerSec || 0;
+            this.totalClicks = parsed.totalClicks || 0;
+            this.criticalHits = parsed.criticalHits || 0;
             if (parsed.upgrades) {
                 this.upgrades.forEach((u, i) => {
                     if (parsed.upgrades[i]) u.count = parsed.upgrades[i].count || 0;
@@ -37,13 +39,21 @@ const IT_ZEN_GAME = {
             dataBits: this.dataBits,
             bitsPerClick: this.bitsPerClick,
             autoBitsPerSec: this.autoBitsPerSec,
+            totalClicks: this.totalClicks,
+            criticalHits: this.criticalHits,
             upgrades: this.upgrades.map(u => ({ count: u.count }))
         }));
     },
 
     clickBit(event) {
-        this.dataBits += this.bitsPerClick;
-        this.createFloatingText(event, `+${this.bitsPerClick} Bit`);
+        this.totalClicks += 1;
+        const critical = Math.random() < 0.12;
+        const gain = this.bitsPerClick * (critical ? 5 : 1);
+        this.dataBits += gain;
+        if (critical) this.criticalHits += 1;
+        this.createFloatingText(event, `${critical ? '⚡ CRITICAL! +' : '+'}${gain} Bit`);
+        if (this.totalClicks % 25 === 0) showToast('ภารกิจสำเร็จ! คลิกครบ 25 ครั้ง รับโบนัส 25 Bits 🎯');
+        if (this.totalClicks % 25 === 0) this.dataBits += 25;
         this.saveGame();
         this.updateDisplay();
     },
@@ -90,6 +100,12 @@ const IT_ZEN_GAME = {
         const bpsEl = document.getElementById('zenBpsCount');
         if (bitsEl) bitsEl.textContent = this.dataBits.toLocaleString();
         if (bpsEl) bpsEl.textContent = this.autoBitsPerSec.toLocaleString();
+        const clicksEl = document.getElementById('zenClicksCount');
+        const critEl = document.getElementById('zenCritCount');
+        const progressEl = document.getElementById('zenQuestProgress');
+        if (clicksEl) clicksEl.textContent = this.totalClicks.toLocaleString();
+        if (critEl) critEl.textContent = this.criticalHits.toLocaleString();
+        if (progressEl) progressEl.style.width = `${Math.min(100, (this.totalClicks % 25) * 4)}%`;
     },
 
     renderUI() {
@@ -112,6 +128,13 @@ const IT_ZEN_GAME = {
                     </div>
                 </div>
 
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div class="rounded-xl bg-slate-800/80 border border-slate-700 p-3"><p class="text-[11px] text-slate-400">เลเวลแกนพลังงาน</p><p class="text-xl font-bold text-cyan-300">LV.${Math.floor(this.totalClicks / 50) + 1}</p></div>
+                  <div class="rounded-xl bg-slate-800/80 border border-slate-700 p-3"><p class="text-[11px] text-slate-400">จำนวนคลิกทั้งหมด</p><p id="zenClicksCount" class="text-xl font-bold text-white">${this.totalClicks.toLocaleString()}</p></div>
+                  <div class="rounded-xl bg-slate-800/80 border border-slate-700 p-3"><p class="text-[11px] text-slate-400">Critical Hit</p><p id="zenCritCount" class="text-xl font-bold text-amber-300">${this.criticalHits.toLocaleString()}</p></div>
+                  <div class="rounded-xl bg-slate-800/80 border border-slate-700 p-3"><p class="text-[11px] text-slate-400">โบนัสถัดไป</p><p class="text-sm font-bold text-emerald-300">ครบ 25 คลิก +25 Bits</p><div class="h-1.5 rounded-full bg-slate-700 mt-2 overflow-hidden"><div id="zenQuestProgress" class="h-full bg-emerald-400 transition-all" style="width:${Math.min(100,(this.totalClicks % 25)*4)}%"></div></div></div>
+                </div>
+
                 <!-- RELAXING CLICK AREA -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="md:col-span-2 bg-slate-950/80 border border-slate-800 rounded-2xl p-8 flex flex-col items-center justify-center relative overflow-hidden min-h-[260px]">
@@ -123,7 +146,8 @@ const IT_ZEN_GAME = {
                             <span class="text-[11px] font-bold text-slate-950 mt-1 uppercase tracking-wider">CLICK!</span>
                         </button>
 
-                        <p class="text-xs text-slate-400 mt-4 relative z-10">คลิกที่แกนพลังงานเพื่อเก็บ Data Bits (+${this.bitsPerClick} / คลิก)</p>
+                        <p class="text-xs text-slate-400 mt-4 relative z-10 text-center">คลิกเพื่อสะสมพลังงาน (+${this.bitsPerClick} ต่อครั้ง) • มีโอกาส Critical Hit x5</p>
+                        <p class="text-[11px] text-emerald-300/80 mt-2 relative z-10">ทุก 25 คลิก รับโบนัส 25 Bits • สะสมเลเวลเพื่อปลดล็อกความก้าวหน้า</p>
                     </div>
 
                     <!-- UPGRADES LIST -->

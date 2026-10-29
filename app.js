@@ -283,6 +283,45 @@ function setMidnightCountdown(now, countdownEl, countdownLabelEl, nextSubjectEl)
     if (nextSubjectEl) nextSubjectEl.textContent = nextDayNames[nextDayIndex];
 }
 
+
+// รายละเอียดวิชา: เติม teacher, description และ image ใน MASTER_SCHEDULE ได้ภายหลัง
+function getClassTimeStatus(item, now = new Date()) {
+    const current = now.getHours() * 60 + now.getMinutes();
+    const [sh, sm] = item.timeStart.split(':').map(Number);
+    const [eh, em] = item.timeEnd.split(':').map(Number);
+    if (current >= eh * 60 + em) return 'past';
+    if (current >= sh * 60 + sm) return 'current';
+    return 'upcoming';
+}
+function openClassDetails(classId, dayKey) {
+    const day = MASTER_SCHEDULE[dayKey];
+    const item = day && day.classes.find(c => String(c.id) === String(classId));
+    if (!item) return;
+    const modal = document.getElementById('classDetailModal');
+    if (!modal) return;
+    const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value || 'ยังไม่ได้ระบุ'; };
+    set('classDetailSubject', item.subject);
+    set('classDetailDay', day.dayName);
+    set('classDetailTime', `${item.timeStart} – ${item.timeEnd} น.`);
+    set('classDetailRoom', item.isLunch ? 'ช่วงพัก' : item.room);
+    set('classDetailTeacher', item.teacher || item.instructor || 'เพิ่มชื่ออาจารย์ใน MASTER_SCHEDULE');
+    set('classDetailDescription', item.description || item.note || 'เพิ่มรายละเอียดรายวิชาได้ในข้อมูล MASTER_SCHEDULE');
+    const dayOrder = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const todayKey = dayOrder[new Date().getDay()];
+    const status = dayKey !== todayKey ? 'past' : getClassTimeStatus(item);
+    const image = document.getElementById('classDetailImage');
+    if (image) {
+        if (item.image) { image.src = item.image; image.classList.remove('hidden'); }
+        else { image.removeAttribute('src'); image.classList.add('hidden'); }
+    }
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+function closeClassDetails() {
+    const modal = document.getElementById('classDetailModal');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+}
+
 // RENDER TODAY SCHEDULE
 function renderTodaySchedule() {
     const container = document.getElementById('todayCardsContainer');
@@ -317,7 +356,8 @@ function renderTodaySchedule() {
 
         card.innerHTML = `
             <div class="flex items-start justify-between gap-3">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                    ${getClassTimeStatus(item, new Date()) === 'past' ? `<span class="text-[10px] font-bold px-2 py-1 rounded-full bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-200"><i class="fa-solid fa-check-double mr-1"></i>ผ่านแล้ว</span>` : getClassTimeStatus(item, new Date()) === 'current' ? `<span class="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 animate-pulse"><i class="fa-solid fa-circle mr-1"></i>กำลังเรียน</span>` : ''}
                     <span class="px-2.5 py-1 rounded-lg text-xs font-bold font-mono bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 shadow-2xs">
                         <i class="fa-regular fa-clock text-slate-400 mr-1"></i>${item.timeStart} - ${item.timeEnd}
                     </span>
@@ -332,11 +372,15 @@ function renderTodaySchedule() {
 
             <div class="flex items-center justify-between text-xs border-t border-slate-100 dark:border-slate-700/60 pt-3 mt-1">
                 <span class="text-slate-500 dark:text-slate-400">ห้อง IT.4501</span>
+                <div class="flex items-center gap-3">
+                <button onclick="openClassDetails('${item.id}', '${todayKey}')" class="text-indigo-600 dark:text-indigo-300 hover:text-indigo-800 font-bold flex items-center gap-1 text-xs bg-indigo-50 dark:bg-indigo-950/60 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-800"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> ดูรายละเอียด</button>
                 <button onclick="sendSingleSubjectWebhook('${item.subject}', '${item.timeStart} - ${item.timeEnd}', '${item.room}', '${daySchedule.dayName}')" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold flex items-center gap-1 text-[11.5px]">
                     <i class="fa-solid fa-share-nodes"></i> แจ้งเข้า Chat
                 </button>
+                </div>
             </div>
         `;
+        if (getClassTimeStatus(item, now) === 'past') card.classList.add('opacity-75');
         container.appendChild(card);
     });
 }
@@ -365,8 +409,9 @@ function renderWeeklySchedule() {
                             <div class="text-[11px] text-slate-500 dark:text-slate-400">${c.isLunch ? 'ช่วงพักรับประทานอาหาร' : 'วิชาเรียนปกติ'}</div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 self-end sm:self-auto">
+                    <div class="flex items-center gap-2 self-end sm:self-auto flex-wrap">
                         ${!c.isLunch ? `<span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">ห้อง ${c.room}</span>` : `<span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">พักเที่ยง</span>`}
+                        <button onclick="openClassDetails('${c.id}', '${dayKey}')" class="text-xs font-bold px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm"><i class="fa-solid fa-expand mr-1"></i> ดูรายละเอียด</button>
                     </div>
                 </div>
             `;
