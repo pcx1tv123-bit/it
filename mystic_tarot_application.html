@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mystic Tarot - แอปทำนายดวงชะตาด้วยไพ่ทาโรต์</title>
+  <link rel="icon" href="https://i.pinimg.com/1200x/cb/16/7a/cb167ae82a34505fa8e2e77e43851e51.jpg" type="image/png">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Cinzel:wght@600;700;900&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            mystic: {
+              950: '#07020d',
+              900: '#120722',
+              800: '#210c3b',
+              700: '#38145e',
+              gold: '#f3c669',
+              goldLight: '#ffe5a3',
+            }
+          },
+          fontFamily: {
+            sans: ['Kanit', 'sans-serif'],
+            cinzel: ['Cinzel', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      background-color: #07020d;
+      color: #e2d9f3;
+      overflow-x: hidden;
+      font-size: 14px;
+    }
+
+    #stars-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .perspective-1000 { perspective: 1000px; }
+    .transform-style-3d { transform-style: preserve-3d; }
+    .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .rotate-y-180 { transform: rotateY(180deg); }
+    .card-inner { transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .card-container.flipped .card-inner { transform: rotateY(180deg); }
+
+    .gold-border {
+      border: 1px solid rgba(243, 198, 105, 0.4);
+      box-shadow: 0 0 10px rgba(243, 198, 105, 0.15);
+    }
+    
+    @keyframes cardPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(243, 198, 105, 0.2); }
+      50% { box-shadow: 0 0 20px rgba(243, 198, 105, 0.4); }
+    }
+    .card-pulse { animation: cardPulse 3s infinite ease-in-out; }
+
+    .reading-hero { background: linear-gradient(145deg, rgba(31,27,24,.95), rgba(18,15,14,.98)); border: 1px solid rgba(211,177,112,.35); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    .eyebrow { display: inline-block; color: #d8bd87; font-size: 10px; letter-spacing: .15em; border: 1px solid #d8bd8740; border-radius: 999px; padding: 4px 10px; }
+    
+    .deck-stage { position: relative; width: 110px; height: 140px; margin: 16px auto; }
+    .deck-card { position: absolute; width: 90px; height: 130px; left: 10px; top: 5px; border-radius: 8px; border: 1px solid #c9ad75; background: repeating-linear-gradient(45deg,#26221d 0,#26221d 4px,#30291f 4px,#30291f 6px); box-shadow: 0 6px 15px rgba(0,0,0,0.6); }
+    .deck-card-back { transform: rotate(-10deg) translate(-5px, 2px); }
+    .deck-card-mid { transform: rotate(8deg) translate(5px, 0); }
+    .deck-card-front { transform: rotate(0deg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(145deg,#29251f,#11100e); outline: 1px solid #c9ad75; outline-offset: -5px; }
+    .deck-star { color: #d8bd87; font-size: 24px; }
+    .deck-label { font: 600 10px/1.4 Cinzel, serif; letter-spacing: .15em; color: #e7d6b0; text-align: center; }
+    
+    .draw-button { padding: 10px 20px; color: #17130c; background: linear-gradient(135deg,#e8d3a2,#c6a765); border: 1px solid #f0dfb7; border-radius: 8px; font-weight: 600; font-size: 13px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform .2s, filter .2s; }
+    .draw-button:hover { transform: translateY(-2px); filter: brightness(1.08); }
+    .draw-button:disabled { opacity: .65; cursor: wait; }
+
+    .tarot-art { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 5px; background: #201c17; }
+    .card-art-frame { padding: 3px; border-radius: 8px; background: linear-gradient(145deg,#e3cc91,#5d4927); box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
+    .gallery-art { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 5px; background: #201c17; }
+    
+    @keyframes shuffleDeck { 0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-12px) rotate(-6deg)}50%{transform:translateX(12px) rotate(6deg)}75%{transform:translateY(-5px) rotate(-3deg)} }
+    .deck-stage.shuffling .deck-card { animation: shuffleDeck .4s ease-in-out 3; }
+
+    .card-container { filter: drop-shadow(0 8px 15px rgba(0,0,0,0.3)); transition: transform .3s ease; }
+    .card-container:hover { transform: translateY(-3px); }
+    .card-inner { border-radius: 12px; }
+    .card-container .card-front, .card-container .card-back { border-radius: 12px; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #07020d; }
+    ::-webkit-scrollbar-thumb { background: #38145e; border-radius: 3px; border: 1px solid rgba(243, 198, 105, 0.3); }
+    ::-webkit-scrollbar-thumb:hover { background: #f3c669; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col relative">
+
+  <canvas id="stars-canvas"></canvas>
+
+  <!-- Navigation Bar -->
+  <header class="relative z-10 border-b border-mystic-gold/20 bg-mystic-950/80 backdrop-blur-md sticky top-0">
+    <div class="max-w-6xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-3">
+      
+      <div class="flex items-center space-x-2.5 cursor-pointer" onclick="switchTab('reading')">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-mystic-700 to-mystic-900 border border-mystic-gold/60 flex items-center justify-center text-mystic-gold shadow-md">
+          <i class="fa-solid fa-eye text-sm animate-pulse"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold font-cinzel tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-mystic-goldLight via-mystic-gold to-amber-500">
+            MYSTIC TAROT
+          </h1>
+          <p class="text-[9px] text-purple-300/70 tracking-widest font-cinzel uppercase">Fortune & Destiny Reader</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button id="nav-btn-reading" onclick="switchTab('reading')" 
+                class="px-3 py-1.5 rounded-lg text-xs font-medium border border-mystic-gold/40 bg-mystic-gold/10 text-mystic-gold transition-all">
+          <i class="fa-solid fa-sparkles mr-1"></i>ทำนายดวง
+        </button>
+
+        <button id="nav-btn-gallery" onclick="switchTab('gallery')" 
+                class="px-3 py-1.5 rounded-lg text-xs font-medium border border-purple-800/60 bg-mystic-900/60 text-purple-300 hover:text-mystic-gold transition-all">
+          <i class="fa-solid fa-book-bookmark mr-1"></i>คลังไพ่ Major Arcana (22 ใบ)
+        </button>
+
+        <a href="index.html" 
+           id="tabBtn-game" 
+           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-heading text-xs font-semibold shadow-md border border-emerald-400/40 active:scale-95 transition-all">
+            <i class="fa-solid fa-arrow-left text-emerald-200"></i>
+            <span>กลับหน้าหลัก</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="relative z-10 flex-grow max-w-5xl w-full mx-auto px-4 py-6 space-y-6">
+
+    <!-- TAB 1: FORTUNE READING SECTION -->
+    <section id="tab-reading" class="space-y-6">
+      
+      <div class="reading-hero max-w-3xl mx-auto rounded-xl p-5 sm:p-7 text-center relative overflow-hidden">
+        <div class="relative z-10">
+          <span class="eyebrow"><i class="fa-solid fa-moon mr-1.5"></i>MAJOR ARCANA · THREE-CARD SPREAD</span>
+          <h2 class="text-xl sm:text-2xl font-semibold mt-3 mb-2 text-stone-100 font-cinzel">เปิดไพ่ทาโรต์ทำนายดวงชะตา</h2>
+          <p class="max-w-lg mx-auto text-xs sm:text-sm text-stone-300 leading-relaxed">ตั้งจิตอธิษฐานแล้วนึกถึงเรื่องที่คุณสงสัย จากนั้นกดสับไพ่เพื่อเปิดคำทำนาย 3 มุมมอง (อดีต, ปัจจุบัน, และคำแนะนำอนาคตที่เข้าใจง่าย)</p>
+          <div class="deck-stage" aria-label="สำรับไพ่ทาโรต์">
+            <div class="deck-card deck-card-back"></div>
+            <div class="deck-card deck-card-mid"></div>
+            <div class="deck-card deck-card-front"><span class="deck-star">✦</span><span class="deck-label">MYSTIC<br>TAROT</span></div>
+          </div>
+          <button id="draw-cards-btn" onclick="drawTarotCards()" class="draw-button"><i class="fa-solid fa-shuffle mr-1.5"></i><span>สับไพ่และเปิดคำทำนาย</span></button>
+        </div>
+      </div>
+
+      <!-- CARDS DISPLAY AREA -->
+      <div id="cards-display-area" class="hidden space-y-6">
+        
+        <div class="text-center">
+          <h3 class="text-lg sm:text-xl font-bold font-cinzel text-mystic-gold flex items-center justify-center space-x-2">
+            <i class="fa-solid fa-star-of-david text-[10px]"></i>
+            <span>ไพ่ทำนาย 3 ใบของคุณ</span>
+            <i class="fa-solid fa-star-of-david text-[10px]"></i>
+          </h3>
+          <p class="text-[11px] text-purple-300/70 mt-0.5">แตะที่หน้าไพ่แต่ละใบเพื่อพลิกดูคำทำนายเชิงลึก</p>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-3xl mx-auto">
+          
+          <!-- CARD 1 -->
+          <div class="flex flex-col items-center">
+            <div class="mb-1.5 text-center">
+              <span class="text-[11px] font-cinzel tracking-wider uppercase text-indigo-300 font-semibold bg-indigo-950/80 px-2.5 py-0.5 rounded-full border border-indigo-500/30">
+                1. อดีต / รากฐานปัญหา
+              </span>
+            </div>
+            <div class="card-container perspective-1000 w-44 h-72 cursor-pointer" onclick="flipCard(0)">
+              <div id="card-inner-0" class="card-inner relative w-full h-full transform-style-3d shadow-xl">
+                <div class="absolute w-full h-full rounded-xl bg-gradient-to-br from-mystic-900 via-mystic-800 to-mystic-950 border-2 border-mystic-gold/60 p-2.5 backface-hidden card-pulse flex flex-col justify-between">
+                  <div class="w-full h-full border border-mystic-gold/30 rounded-lg flex flex-col items-center justify-center p-3 text-center">
+                    <i class="fa-solid fa-sun text-mystic-gold text-3xl mb-2 animate-spin" style="animation-duration: 20s;"></i>
+                    <span class="text-[10px] font-cinzel font-bold text-mystic-gold tracking-widest">TAP TO REVEAL</span>
+                  </div>
+                </div>
+                <div id="card-front-0" class="absolute w-full h-full rounded-xl bg-mystic-900 border-2 border-mystic-gold p-3 backface-hidden rotate-y-180 flex flex-col justify-between text-center gold-border"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 2 -->
+          <div class="flex flex-col items-center">
+            <div class="mb-1.5 text-center">
+              <span class="text-[11px] font-cinzel tracking-wider uppercase text-amber-300 font-semibold bg-amber-950/80 px-2.5 py-0.5 rounded-full border border-amber-500/30">
+                2. ปัจจุบัน / สถานการณ์ตอนนี้
+              </span>
+            </div>
+            <div class="card-container perspective-1000 w-44 h-72 cursor-pointer" onclick="flipCard(1)">
+              <div id="card-inner-1" class="card-inner relative w-full h-full transform-style-3d shadow-xl">
+                <div class="absolute w-full h-full rounded-xl bg-gradient-to-br from-mystic-900 via-mystic-800 to-mystic-950 border-2 border-mystic-gold/60 p-2.5 backface-hidden card-pulse flex flex-col justify-between">
+                  <div class="w-full h-full border border-mystic-gold/30 rounded-lg flex flex-col items-center justify-center p-3 text-center">
+                    <i class="fa-solid fa-moon text-mystic-gold text-3xl mb-2 animate-pulse"></i>
+                    <span class="text-[10px] font-cinzel font-bold text-mystic-gold tracking-widest">TAP TO REVEAL</span>
+                  </div>
+                </div>
+                <div id="card-front-1" class="absolute w-full h-full rounded-xl bg-mystic-900 border-2 border-mystic-gold p-3 backface-hidden rotate-y-180 flex flex-col justify-between text-center gold-border"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD 3 -->
+          <div class="flex flex-col items-center">
+            <div class="mb-1.5 text-center">
+              <span class="text-[11px] font-cinzel tracking-wider uppercase text-emerald-300 font-semibold bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                3. อนาคต / แนวทางแก้ปัญหา
+              </span>
+            </div>
+            <div class="card-container perspective-1000 w-44 h-72 cursor-pointer" onclick="flipCard(2)">
+              <div id="card-inner-2" class="card-inner relative w-full h-full transform-style-3d shadow-xl">
+                <div class="absolute w-full h-full rounded-xl bg-gradient-to-br from-mystic-900 via-mystic-800 to-mystic-950 border-2 border-mystic-gold/60 p-2.5 backface-hidden card-pulse flex flex-col justify-between">
+                  <div class="w-full h-full border border-mystic-gold/30 rounded-lg flex flex-col items-center justify-center p-3 text-center">
+                    <i class="fa-solid fa-sparkles text-mystic-gold text-3xl mb-2 animate-bounce"></i>
+                    <span class="text-[10px] font-cinzel font-bold text-mystic-gold tracking-widest">TAP TO REVEAL</span>
+                  </div>
+                </div>
+                <div id="card-front-2" class="absolute w-full h-full rounded-xl bg-mystic-900 border-2 border-mystic-gold p-3 backface-hidden rotate-y-180 flex flex-col justify-between text-center gold-border"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- DETAILED READINGS CONTAINER -->
+        <div id="readings-detail-container" class="max-w-3xl mx-auto bg-mystic-900/70 border border-mystic-gold/30 rounded-xl p-5 sm:p-6 backdrop-blur-md space-y-4">
+          <div class="bg-gradient-to-r from-purple-900/40 via-mystic-800/60 to-purple-900/40 border border-purple-500/30 p-4 rounded-lg space-y-1.5">
+            <h4 class="text-sm font-bold font-cinzel text-mystic-gold flex items-center space-x-2">
+              <i class="fa-solid fa-crystal-ball text-purple-400"></i>
+              <span>สรุปภาพรวมคำทำนายและแนวทางปฏิบัติ</span>
+            </h4>
+            <p id="overall-summary-text" class="text-xs sm:text-sm text-purple-100 leading-relaxed"></p>
+          </div>
+
+          <div id="cards-breakdown-list" class="space-y-4 pt-2"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- TAB 2: TAROT GALLERY -->
+    <section id="tab-gallery" class="hidden space-y-5">
+      <div class="text-center max-w-xl mx-auto">
+        <h2 class="text-xl sm:text-2xl font-bold font-cinzel text-mystic-gold mb-1">
+          คลังความหมายไพ่ Major Arcana (22 ใบ)
+        </h2>
+        <p class="text-xs text-purple-300/80">
+          คลิกที่ไพ่ใบใดก็ได้เพื่ออ่านคำอธิบายแบบละเอียดและเข้าใจง่าย
+        </p>
+      </div>
+
+      <div id="gallery-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3"></div>
+    </section>
+
+  </main>
+
+  <!-- MODAL -->
+  <div id="card-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-mystic-900 border border-mystic-gold/50 rounded-xl max-w-md w-full p-5 relative max-h-[90vh] overflow-y-auto space-y-3 shadow-2xl">
+      <button onclick="closeModal()" class="absolute top-3 right-3 text-purple-300 hover:text-mystic-gold text-lg w-7 h-7 flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div id="modal-content" class="space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 border-t border-purple-900/40 py-4 text-center text-xs text-purple-400/60 bg-mystic-950/80 mt-auto">
+    <div class="max-w-5xl mx-auto px-4">
+      <p>© 2569 เจษฎากร พิทักษ์ • ห้อง IT.4501</p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT -->
+  <script>
+    /* ฐานข้อมูลไพ่ทาโรต์ 22 ใบ พร้อมคำอธิบายที่เข้าใจง่ายและละเอียดขึ้น */
+    const TAROT_CARDS = [
+      { id: 0, roman: "0", name: "The Fool", titleTh: "เดอะ ฟูล (คนโง่ / การเริ่มต้น)", icon: "fa-wand-magic-sparkles", keywords: ["เริ่มต้นใหม่", "อิสรภาพ", "ความเสี่ยง", "การเดินทาง"], meaning: "คุณกำลังจะเริ่มต้นทำอะไรใหม่ๆ แบบก้าวกระโดด อาจจะยังไม่มีประสบการณ์เต็มร้อย แต่มีความตื่นเต้นและความกล้าหาญเต็มเปี่ยม เป็นช่วงเวลาที่ชีวิตเปิดรับโอกาสใหม่ๆ ที่ไม่เคยลอง", advice: "อย่ากลัวที่จะลองเสี่ยงทำสิ่งใหม่ๆ เปิดใจเรียนรู้และสนุกไปกับเส้นทางข้างหน้า แม้จะยังมองไม่เห็นปลายทางชัดเจนก็ตาม" },
+      { id: 1, roman: "I", name: "The Magician", titleTh: "เดอะ เมจิเชียน (นักกลมาย / ความสามารถ)", icon: "fa-hat-wizard", keywords: ["ทักษะ", "ความฉลาด", "ไอเดีย", "ลงมือทำ"], meaning: "คุณมีของ มีความสามารถ และมีเครื่องมือรอบตัวครบถ้วนแล้ว พร้อมที่จะเนรมิตความตั้งใจให้กลายเป็นความจริง ขอแค่มีความมั่นใจและรู้จักพลิกแพลงสถานการณ์", advice: "ใช้ความสามารถและไอเดียที่มีจัดการปัญหาตรงหน้าได้เลย ถึงเวลาแสดงศักยภาพที่แท้จริงของคุณออกมาแล้ว" },
+      { id: 2, roman: "II", name: "The High Priestess", titleTh: "เดอะ ไฮพรีสเตส (นักบวชหญิง / สัญชาตญาณ)", icon: "fa-moon", keywords: ["ลางสังหรณ์", "ความสงบ", "ความลับ", "ความอดทน"], meaning: "ช่วงนี้สัญชาตญาณของคุณแม่นยำมากๆ อาจมีเรื่องราวหรือความจริงบางอย่างที่ยังถูกซ่อนเอาไว้ หรือเป็นช่วงเวลาที่คุณอยากปลีกวิเวกเพื่อทบทวนจิตใจตัวเอง", advice: "ลองเงียบเสียงรอบข้างแล้วฟังเสียงหัวใจตัวเองให้ดี อย่าเพิ่งรีบตัดสินใจเชื่อใครง่ายๆ จนกว่าจะแน่ใจ" },
+      { id: 3, roman: "III", name: "The Empress", titleTh: "เดอะ เอ็มเพรส (พระนาง / ความอุดมสมบูรณ์)", icon: "fa-crown", keywords: ["ความสุข", "ความรัก", "ความสำเร็จ", "ความอิ่มเอม"], meaning: "สัญญาณแห่งความรุ่งเรือง ความสุขสบาย และความรักที่อบอุ่น สิ่งที่คุณทุ่มเทลงแรงไปกำลังออกผลิดอกออกผล สร้างความพึงพอใจและเติมเต็มชีวิตให้สมบูรณ์", advice: "รู้จักดูแลเอาใจใส่ตัวเองและคนรอบข้าง โอบกอดความสุขเล็กๆ น้อยๆ ในชีวิตให้เต็มที่" },
+      { id: 4, roman: "IV", name: "The Emperor", titleTh: "เดอะ เอ็มเพอเรอร์ (จักรพรรดิ / ความมั่นคง)", icon: "fa-chess-king", keywords: ["ระเบียบ", "ความเป็นผู้นำ", "อำนาจ", "การจัดการ"], meaning: "ช่วงนี้ชีวิตต้องการความเป็นระเบียบวินัยและการควบคุมสถานการณ์ให้เข้าที่เข้าทาง คุณต้องสวมบทบาทเป็นผู้นำ ตัดสินใจอย่างเด็ดขาดและใช้เหตุผลเหนืออารมณ์", advice: "จัดระเบียบชีวิต แผนงาน และการเงินให้รัดกุม ทำทุกอย่างตามกฎกติกาอย่างเคร่งครัดแล้วจะราบรื่น" },
+      { id: 5, roman: "V", name: "The Hierophant", titleTh: "เดอะ ไฮโรแฟนท์ (นักปราชญ์ / ผู้ชี้ทาง)", icon: "fa-book-quran", keywords: ["คำแนะนำ", "ประเพณี", "การศึกษา", "ผู้ใหญ่เมตตา"], meaning: "คุณกำลังอยู่ในช่วงศึกษาเรียนรู้สิ่งใหม่ๆ หรืออาจได้รับคำปรึกษา คำแนะนำที่ดีมีประโยชน์จากผู้หลักผู้ใหญ่ที่มีประสบการณ์สูง", advice: "เชื่อฟังคำเตือนของคนที่มีประสบการณ์ ยึดมั่นในศีลธรรมอันดีงาม และเปิดใจรับฟังคำสอนรอบตัว" },
+      { id: 6, roman: "VI", name: "The Lovers", titleTh: "เดอะ เลิฟเวอร์ส (คู่รัก / การตัดสินใจเลือก)", icon: "fa-heart", keywords: ["ความรัก", "ความผูกพัน", "ทางเลือกสำคัญ", "ความเข้ากันได้"], meaning: "เด่นเรื่องความสัมพันธ์ ความรักความเข้าใจ หรือการร่วมมือกันเป็นทีม นอกจากนี้ยังแปลว่าคุณกำลังเผชิญหน้ากับทางเลือกครั้งสำคัญในชีวิต", advice: "ตัดสินใจเลือกสิ่งที่ตรงกับเสียงเรียกร้องในหัวใจและความถูกต้อง ซื่อสัตย์กับความรู้สึกตัวเองให้มากที่สุด" },
+      { id: 7, roman: "VII", name: "The Chariot", titleTh: "เดอะ แชริออต (รถศึก / ความมุ่งมั่น)", icon: "fa-shield-halved", keywords: ["ชัยชนะ", "ความพยายาม", "เดินทาง", "การควบคุม"], meaning: "แม้จะมีอุปสรรคถาโถมเข้ามา แต่ด้วยความมุ่งมั่น ทะเยอทะยาน และจิตใจที่ไม่ยอมแพ้ คุณจะสามารถขับเคลื่อนพาตัวเองไปสู่เป้าหมายและคว้าชัยชนะมาได้", advice: "ตั้งสติให้มั่น ควบคุมอารมณ์ความหงุดหงิด แล้วพุ่งชนเป้าหมายด้วยความฮึดสู้ขั้นสุด" },
+      { id: 8, roman: "VIII", name: "Strength", titleTh: "สเตร็งธ์ (ความเข้มแข็งภายใน)", icon: "fa-hand-fist", keywords: ["ความอดทน", "ความกล้า", "การควบคุมใจ", "เมตตาธรรม"], meaning: "ความแข็งแกร่งไม่ได้แปลว่าต้องใช้กำลังเสมอไป แต่หมายถึงการมีความอดทนสูง ใจเย็น และใช้ความอ่อนโยนสยบความตึงเครียดหรือปัญหาเฉพาะหน้า", advice: "ใจเย็นๆ ค่อยๆ พูดค่อยจา อย่าใช้อารมณ์เข้าห้ำหั่นกัน แล้วคุณจะผ่านพ้นสถานการณ์ยากๆ ไปได้อย่างสง่างาม" },
+      { id: 9, roman: "IX", name: "The Hermit", titleTh: "เดอะ เฮอร์มิท (ฤาษี / การค้นหาตัวเอง)", icon: "fa-lantern", keywords: ["สันโดษ", "ทบทวนตัวเอง", "ปัญญา", "ความเงียบสงบ"], meaning: "ช่วงนี้คุณอาจรู้สึกอยากปลีกตัวออกจากความวุ่นวายรอบข้าง เพื่อมานั่งเงียบๆ คนเดียวและทบทวนเส้นทางชีวิตที่ผ่านมา ค้นหาคำตอบที่แท้จริงข้างในใจ", advice: "ใช้เวลาอยู่กับตัวเองให้มากขึ้น ปิดเสียงรบกวนจากภายนอก แล้วคุณจะพบทางออกที่ชาญฉลาดที่สุด" },
+      { id: 10, roman: "X", name: "Wheel of Fortune", titleTh: "วีล ออฟ ฟอร์จูน (กงล้อโชคชะตา)", icon: "fa-dharmachakra", keywords: ["โชคชะตา", "จุดเปลี่ยน", "โอกาส", "วัฏจักรชีวิต"], meaning: "กงล้อชีวิตกำลังหมุนพลิกผันไปในทิศทางใหม่ สถานการณ์ที่เคยแย่กำลังจะคลี่คลาย หรือมีโอกาสดีๆ จังหวะปังๆ เข้ามาหาแบบไม่คาดฝัน", advice: "เตรียมตัวให้พร้อมรับการเปลี่ยนแปลง ยิ้มรับโชคชะตา และคว้าโอกาสทองไว้ให้ดีเมื่อมันลอยมา" },
+      { id: 11, roman: "XI", name: "Justice", titleTh: "จัสติส (ความยุติธรรม / ความถูกต้อง)", icon: "fa-scale-balanced", keywords: ["ความจริง", "ความยุติธรรม", "เหตุและผล", "ความสมดุล"], meaning: "ทุกสิ่งทุกอย่างกำลังเข้าสู่จุดที่ยุติธรรม ใครทำดีได้ดี ทำชั่วได้ชั่ว มีเกณฑ์การเซ็นสัญญา เอกสารทางกฎหมาย หรือต้องใช้เหตุผลตัดสินใจสูงมาก", advice: "ยึดมั่นความถูกต้องและความซื่อสัตย์ ไตร่ตรองทุกอย่างด้วยสมองและเหตุผล อย่าใช้อารมณ์เด็ดขาด" },
+      { id: 12, roman: "XII", name: "The Hanged Man", titleTh: "เดอะ แฮงก์ แมน (มุมมองกลับด้าน / การรอคอย)", icon: "fa-anchor", keywords: ["เสียสละ", "อดทนรอ", "มุมมองใหม่", "ชะงักชั่วคราว"], meaning: "ชีวิตอาจจะดูเหมือนติดขัด หยุดนิ่ง หรือไปต่อไม่ได้ดั่งใจ ทำให้รู้สึกอึดอัด แต่จริงๆ แล้วนี่คือจังหวะให้คุณลองเปลี่ยนมุมมองความคิดใหม่", advice: "ปล่อยวางเรื่องที่ยังควบคุมไม่ได้ ลองมองปัญหาจากมุมมองของคนอื่นดูบ้าง แล้วคุณจะเข้าใจทางออกมากขึ้น" },
+      { id: 13, roman: "XIII", name: "Death", titleTh: "เดธ (การสิ้นสุดและเกิดใหม่)", icon: "fa-skull", keywords: ["จุดจบ", "การเปลี่ยนแปลงใหญ่", "เริ่มต้นใหม่", "ละทิ้งอดีต"], meaning: "ไม่ต้องตกใจ ไพ่ใบนี้ไม่ได้แปลว่าความตาย แต่หมายถึง 'การปิดฉากเรื่องเก่า' เพื่อเปิดประตูต้อนรับบทบาทใหม่ที่สดใสและเติบโตกว่าเดิม", advice: "กล้าที่จะตัดใจจากสิ่งเดิมๆ นิสัยเดิมๆ หรือความสัมพันธ์ที่เป็นพิษ เพื่อก้าวไปสู่อนาคตที่ดีกว่า" },
+      { id: 14, roman: "XIV", name: "Temperance", titleTh: "เทมเพอเรนซ์ (ความพอดี / การผสมผสาน)", icon: "fa-scale-unbalanced", keywords: ["ความพอดี", "การปรับตัว", "ประนีประนอม", "การเยียวยา"], meaning: "ทุกอย่างกำลังถูกปรับเข้าหากันอย่างลงตัว คุณเริ่มหาจุดตรงกลางระหว่างความตึงเครียดได้ เป็นช่วงเวลาของการเยียวยาร่างกายและจิตใจให้กลับมาสมดุล", advice: "ใช้ชีวิตแบบเดินทางสายกลาง อย่าหักโหมหรือตึงเกินไป ประนีประนอมและยืดหยุ่นให้มากขึ้น" },
+      { id: 15, roman: "XV", name: "The Devil", titleTh: "เดอะ เดวิล (กิเลส / พันธนาการ)", icon: "fa-spaghetti-monster-flying", keywords: ["สิ่งยั่วยวน", "ติดพัน", "ความลุ่มหลง", "ความคิดลบ"], meaning: "คุณอาจกำลังตกอยู่ในห้วงของความลุ่มหลง สิ่งเสพติด นิสัยแย่ๆ หรือความสัมพันธ์ที่ Toxic จนรู้สึกเหมือนโดนล่ามโซ่ไว้โดยถอนตัวไม่ขึ้น", advice: "รู้เท่าทันกิเลสและความโลภในใจ กล้าที่จะตัดขาดจากพันธนาการที่เป็นพิษเพื่ออิสรภาพของตัวเอง" },
+      { id: 16, roman: "XVI", name: "The Tower", titleTh: "เดอะ ทาวเวอร์ (ตึกถล่ม / เหตุการณ์ฉับพลัน)", icon: "fa-bolt-lightning", keywords: ["เซอร์ไพรส์", "พังทลาย", "วิกฤต", "การตื่นรู้"], meaning: "เกิดเหตุการณ์กะทันหันหรือเซอร์ไพรส์ที่คาดไม่ถึง ทำให้สิ่งที่คุณสร้างมาพังครืนลงมาชั่วคราว แต่อย่าเพิ่งเครียด เพราะมันช่วยล้างบางสิ่งที่ไม่มั่นคงออกไป", advice: "ตั้งสติให้มั่น มองวิกฤตครั้งนี้เป็นโอกาสในการสร้างรากฐานชีวิตใหม่ที่ดีและแข็งแกร่งกว่าเดิม" },
+      { id: 17, roman: "XVII", name: "The Star", titleTh: "เดอะ สตาร์ (ดวงดาวแห่งความหวัง)", icon: "fa-star font-bold", keywords: ["ความหวัง", "แรงบันดาลใจ", "เยียวยาใจ", "อนาคตสดใส"], meaning: "หลังจากผ่านเรื่องหนักๆ มาได้ ไพ่ดาวดวงนี้ส่องแสงนำทางชี้นำความหวัง กำลังใจ และความสุขสงบกลับคืนมา หัวใจคุณจะพองโตและรู้สึกมีพลังบวกอีกครั้ง", advice: "มีความเชื่อมั่นในตัวเองเข้าไว้ มองโลกในแง่ดี อนาคตข้างหน้าสดใสและราบรื่นแน่นอน" },
+      { id: 18, roman: "XVIII", name: "The Moon", titleTh: "เดอะ มูน (ดวงจันทร์ / ความระแวงสงสัย)", icon: "fa-cloud-moon", keywords: ["ความกังวล", "คิดมาก", "ภาพลวงตา", "ความสับสน"], meaning: "ช่วงนี้จิตใจอ่อนไหวเป็นพิเศษ คิดมาก วิตกกังวลไปเอง หรือเจอเรื่องราวคลุมเครือไม่ชัดเจน ทำให้เกิดความระแวงและกลัวในสิ่งที่ยังไม่เกิดขึ้น", advice: "อย่าเพิ่งตีตนไปก่อนไข้หรือเชื่อข่าวลือ หาความจริงให้แน่ชัด ทำจิตใจให้สงบแล้วความกลัวจะหายไป" },
+      { id: 19, roman: "XIX", name: "The Sun", titleTh: "เดอะ ซัน (พระอาทิตย์ / ความสุขความสำเร็จ)", icon: "fa-sun font-bold", keywords: ["ความสุข", "ความสำเร็จ", "สดใส", "พลังงานล้นเหลือ"], meaning: "ไพ่ที่ดีที่สุดใบหนึ่งในสำรับ! ชีวิตกำลังสว่างไสวเต็มไปด้วยความสุข ความสำเร็จชื่อเสียง เงินทอง และพลังงานบวกที่ดึงดูดแต่เรื่องดีๆ เข้ามา", advice: "ยิ้มรับความสุขและส่งต่อพลังบวกให้คนรอบข้าง ลุยทำตามความฝันได้อย่างเต็มที่เลยเพราะดวงกำลังขึ้น" },
+      { id: 20, roman: "XX", name: "Judgement", titleTh: "จัดจ์เมนท์ (การตื่นรู้ / โอกาสครั้งใหม่)", icon: "fa-bullhorn", keywords: ["ปลุกตื่น", "โอกาสที่สอง", "การตัดสินใจ", "ผลลัพธ์"], meaning: "เสียงเรียกจากภายในกำลังบอกให้คุณลุกขึ้นมาเปลี่ยนแปลงตัวเองครั้งใหญ่ เป็นช่วงเวลาของการสะสางเรื่องเก่าและรับผลลัพธ์จากการกระทำที่ผ่านมา", advice: "ให้อภัยอดีตที่ผ่านมา เรียนรู้จากความผิดพลาด แล้วเปิดรับโอกาสครั้งที่สองในการเริ่มต้นใหม่" },
+      { id: 21, roman: "XXI", name: "The World", titleTh: "เดอะ เวิลด์ (ความสำเร็จสมบูรณ์แบบ)", icon: "fa-globe font-bold", keywords: ["สมบูรณ์แบบ", "ความสำเร็จ", "การเดินทาง", "จบลงด้วยดี"], meaning: "ภารกิจ โปรเจกต์ หรือเป้าหมายใหญ่ที่คุณพยายามมานานกำลังจะ 'คอมพรีท' และประสบความสำเร็จอย่างงดงาม ชีวิตมีความสุขลงตัวรอบด้าน", advice: "เฉลิมฉลองความสำเร็จและภาคภูมิใจในตัวเอง จากนั้นเตรียมตัวก้าวข้ามไปสู่บทบาทใหม่ที่ยิ่งใหญ่กว่าเดิม" }
+    ];
+
+    let currentDrawnCards = [];
+    let cardsFlippedState = [false, false, false];
+
+    function tarotImageMarkup(card, className = 'gallery-art') {
+      const safeName = String(card.name || 'Tarot Card').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      const safeTitle = String(card.titleTh || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#393024"/><stop offset="1" stop-color="#100e0b"/></linearGradient></defs><rect width="300" height="450" rx="15" fill="url(#g)"/><rect x="12" y="12" width="276" height="426" rx="10" fill="none" stroke="#d8bd87" stroke-width="2.5"/><circle cx="150" cy="140" r="55" fill="none" stroke="#d8bd87" stroke-width="1.5"/><text x="150" y="270" text-anchor="middle" fill="#f4e6c5" font-family="serif" font-size="20">${safeName}</text><text x="150" y="300" text-anchor="middle" fill="#d8bd87" font-family="sans-serif" font-size="14">${safeTitle}</text></svg>`;
+      const fallback = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+      const imageUrl = `https://www.sacred-texts.com/tarot/pkt/img/ar${String(card.id).padStart(2, '0')}.jpg`;
+      return `<img class="${className}" src="${imageUrl}" alt="${safeName}" loading="lazy" onerror="this.onerror=null;this.src='${fallback}'">`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initStarryBackground();
+      renderGallery();
+    });
+
+    function initStarryBackground() {
+      const canvas = document.getElementById('stars-canvas');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+      function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      for (let i = 0; i < 90; i++) {
+        stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, radius: Math.random() * 1.2 + 0.4, alpha: Math.random(), speed: Math.random() * 0.02 + 0.005 });
+      }
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(star => {
+          star.alpha += star.speed;
+          if (star.alpha > 1 || star.alpha < 0) star.speed = -star.speed;
+          ctx.beginPath(); ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(243, 198, 105, ${Math.max(0, star.alpha)})`; ctx.fill();
+        });
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+
+    function playFlipSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.setValueAtTime(250, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {}
+    }
+
+    function switchTab(tab) {
+      const readingTab = document.getElementById('tab-reading');
+      const galleryTab = document.getElementById('tab-gallery');
+      const btnReading = document.getElementById('nav-btn-reading');
+      const btnGallery = document.getElementById('nav-btn-gallery');
+
+      if (tab === 'reading') {
+        readingTab.classList.remove('hidden'); galleryTab.classList.add('hidden');
+        btnReading.className = "px-3 py-1.5 rounded-lg text-xs font-medium border border-mystic-gold/40 bg-mystic-gold/10 text-mystic-gold transition-all";
+        btnGallery.className = "px-3 py-1.5 rounded-lg text-xs font-medium border border-purple-800/60 bg-mystic-900/60 text-purple-300 hover:text-mystic-gold transition-all";
+      } else {
+        readingTab.classList.add('hidden'); galleryTab.classList.remove('hidden');
+        btnGallery.className = "px-3 py-1.5 rounded-lg text-xs font-medium border border-mystic-gold/40 bg-mystic-gold/10 text-mystic-gold transition-all";
+        btnReading.className = "px-3 py-1.5 rounded-lg text-xs font-medium border border-purple-800/60 bg-mystic-900/60 text-purple-300 hover:text-mystic-gold transition-all";
+      }
+    }
+
+    async function drawTarotCards() {
+      const button = document.getElementById('draw-cards-btn');
+      const deck = document.querySelector('.deck-stage');
+      if (!button || !deck) return;
+      button.disabled = true;
+      button.innerHTML = '<i class="fa-solid fa-shuffle mr-1.5"></i><span>กำลังสับไพ่...</span>';
+      deck.classList.add('shuffling');
+      try {
+        await new Promise(resolve => setTimeout(resolve, 800));
+        cardsFlippedState = [false, false, false];
+        const shuffled = [...TAROT_CARDS];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        currentDrawnCards = shuffled.slice(0, 3).map(card => ({ ...card, reversed: Math.random() < 0.25 }));
+        for (let i = 0; i < 3; i++) {
+          const card = currentDrawnCards[i];
+          const front = document.getElementById(`card-front-${i}`);
+          const container = document.getElementById(`card-inner-${i}`)?.parentElement;
+          if (!front || !container) continue;
+          front.innerHTML = `
+            <div class="text-[9px] font-cinzel text-mystic-gold font-bold tracking-widest uppercase">ARCANA ${card.roman}</div>
+            <div class="card-art-frame w-full flex-1 min-h-0 overflow-hidden">${tarotImageMarkup(card, `tarot-art ${card.reversed ? 'rotate-180' : ''}`)}</div>
+            <div class="pt-1"><div class="text-xs font-bold text-amber-100 font-cinzel leading-tight">${card.name}</div>
+            <div class="text-[10px] text-purple-200">${card.titleTh}</div>
+            <div class="text-[8px] ${card.reversed ? 'text-rose-300' : 'text-emerald-300'}">${card.reversed ? 'ไพ่กลับหัว' : 'ไพ่ตั้งตรง'}</div></div>`;
+          container.classList.remove('flipped');
+        }
+        document.getElementById('cards-display-area')?.classList.remove('hidden');
+        renderSummaryAndBreakdown();
+        document.getElementById('cards-display-area')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        deck.classList.remove('shuffling');
+        button.disabled = false;
+        button.innerHTML = '<i class="fa-solid fa-rotate mr-1.5"></i><span>สับไพ่ชุดใหม่</span>';
+      }
+    }
+
+    function flipCard(index) {
+      const container = document.getElementById(`card-inner-${index}`)?.parentElement;
+      if (container && !cardsFlippedState[index]) {
+        container.classList.add('flipped');
+        cardsFlippedState[index] = true;
+        playFlipSound();
+      }
+    }
+
+    function renderSummaryAndBreakdown() {
+      const positions = [
+        {title:"1. อดีต · รากฐานปัญหา", color:"text-indigo-300", bg:"bg-indigo-950/40 border-indigo-500/30"},
+        {title:"2. ปัจจุบัน · สถานการณ์ตอนนี้", color:"text-amber-300", bg:"bg-amber-950/40 border-amber-500/30"},
+        {title:"3. อนาคต · แนวทางแก้ปัญหา", color:"text-emerald-300", bg:"bg-emerald-950/40 border-emerald-500/30"}
+      ];
+      const [past, present, future] = currentDrawnCards;
+      document.getElementById('overall-summary-text').textContent =
+        `สภาวะความเป็นไปของคุณเริ่มต้นจากรากฐานของ ${past.name} (${past.titleTh})${past.reversed?' [กลับหัว]':''}, สภาพแวดล้อมปัจจุบันเผชิญกับ ${present.name} (${present.titleTh})${present.reversed?' [กลับหัว]':''}, และแนวทางปฏิบัติเพื่ออนาคตที่ดีกว่าคือ ${future.name} (${future.titleTh})${future.reversed?' [กลับหัว]':''}. นำคำแนะนำเหล่านี้ไปปรับใช้เพื่อให้เกิดผลลัพธ์เชิงบวกสูงสุดในชีวิตประจำวันครับ`;
+      
+      document.getElementById('cards-breakdown-list').innerHTML = currentDrawnCards.map((card, idx) => `
+        <article class="border p-3.5 rounded-lg ${positions[idx].bg} flex flex-col sm:flex-row gap-3 items-start text-xs">
+          <div class="w-20 shrink-0 card-art-frame">${tarotImageMarkup(card, `gallery-art ${card.reversed?'rotate-180':''}`)}</div>
+          <div class="flex-grow space-y-1.5">
+            <div class="font-bold tracking-wider ${positions[idx].color}">${positions[idx].title}</div>
+            <h4 class="text-sm font-bold text-amber-100 font-cinzel">${card.name} (${card.titleTh}) <span class="${card.reversed?'text-rose-300':'text-emerald-300'} font-normal">[${card.reversed?'ไพ่กลับหัว':'ไพ่ตั้งตรง'}]</span></h4>
+            <div class="flex flex-wrap gap-1">${card.keywords.map(kw=>`<span class="text-[9px] bg-mystic-950/60 text-purple-200 px-2 py-0.5 rounded-full border border-purple-700/40">#${kw}</span>`).join('')}</div>
+            <p class="text-purple-100/90 leading-relaxed"><strong class="text-mystic-gold">ความหมายที่เข้าใจง่าย:</strong> ${card.meaning}</p>
+            <p class="text-emerald-100/90 leading-relaxed bg-emerald-950/40 p-2 rounded border border-emerald-800/40"><strong class="text-emerald-400">คำแนะนำในการปฏิบัติ:</strong> ${card.advice}</p>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function renderGallery() {
+      document.getElementById('gallery-grid').innerHTML = TAROT_CARDS.map(card => `
+        <button type="button" onclick="openCardModal(${card.id})" class="bg-mystic-900/80 border border-purple-800/40 hover:border-mystic-gold rounded-lg p-2 flex flex-col items-center text-center cursor-pointer transition-all transform hover:-translate-y-1">
+          <div class="text-[9px] font-cinzel text-mystic-gold/80 mb-1">ARCANA ${card.roman}</div>
+          <div class="w-full card-art-frame">${tarotImageMarkup(card,'gallery-art')}</div>
+          <div class="text-[11px] font-bold text-amber-100 font-cinzel mt-1.5 truncate w-full">${card.name}</div>
+        </button>`).join('');
+    }
+
+    function openCardModal(cardId) {
+      const card = TAROT_CARDS.find(c => c.id === cardId);
+      if (!card) return;
+      document.getElementById('modal-content').innerHTML = `
+        <div class="text-center space-y-1">
+          <span class="text-[10px] font-cinzel text-mystic-gold border border-mystic-gold/40 px-2.5 py-0.5 rounded-full">MAJOR ARCANA ${card.roman}</span>
+          <h3 class="text-xl font-bold font-cinzel text-amber-100 mt-1">${card.name}</h3>
+          <p class="text-xs text-purple-300">${card.titleTh}</p>
+        </div>
+        <div class="w-32 mx-auto card-art-frame my-3">${tarotImageMarkup(card,'gallery-art')}</div>
+        <div class="flex flex-wrap justify-center gap-1 my-1">
+          ${card.keywords.map(kw => `<span class="text-[10px] bg-purple-900/50 text-purple-200 px-2.5 py-0.5 rounded-full border border-purple-600/40">#${kw}</span>`).join('')}
+        </div>
+        <div class="space-y-2 pt-1 text-xs">
+          <div class="bg-mystic-950/60 p-3 rounded-lg border border-purple-800/40">
+            <h4 class="font-bold text-mystic-gold mb-1"><i class="fa-solid fa-scroll mr-1"></i>ความหมายโดยละเอียด</h4>
+            <p class="text-purple-100/90 leading-relaxed">${card.meaning}</p>
+          </div>
+          <div class="bg-emerald-950/30 p-3 rounded-lg border border-emerald-800/40">
+            <h4 class="font-bold text-emerald-400 mb-1"><i class="fa-solid fa-lightbulb mr-1"></i>คำแนะนำในการใช้ชีวิต</h4>
+            <p class="text-emerald-100/90 leading-relaxed">${card.advice}</p>
+          </div>
+        </div>
+      `;
+      document.getElementById('card-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('card-modal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
